@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="th" data-uacj="stop">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HRM MACHINE STATUS — แจ้ง Line กลุ่ม</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0c0e14;
+            --surface: #151821;
+            --surface-alt: #1a1e2a;
+            --surface-highlight: #1e2333;
+            --accent: #e8b931;
+            --accent-hover: #d4a61d;
+            --accent-light: rgba(232,185,49,.12);
+            --accent-glow: rgba(232,185,49,.18);
+            --green: #22c55e;
+            --green-light: rgba(34,197,94,.12);
+            --cyan: #06b6d4;
+            --cyan-light: rgba(6,182,212,.1);
+            --danger: #ef4444;
+            --danger-light: rgba(239,68,68,.12);
+            --text: #e8eaf0;
+            --text-2: #9ca3b8;
+            --text-3: #555c72;
+            --border: #252a3a;
+            --border-light: #1e2230;
+            --shadow: rgba(0,0,0,.25);
+            --shadow-md: rgba(0,0,0,.35);
+            --radius: 16px;
+            --radius-sm: 12px;
+            --font-main: 'IBM Plex Sans Thai', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font-main);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background-image:
+                radial-gradient(ellipse at 10% 15%, rgba(232,185,49,.04) 0%, transparent 50%),
+                radial-gradient(ellipse at 90% 85%, rgba(6,182,212,.03) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        body::after {
+            content: '';
+            position: fixed; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+        .app {
+            position: relative;
+            max-width: 460px;
+            margin: 0 auto;
+            padding: 12px 16px 48px;
+        }
+
+        /* ---- Header ---- */
+        .hdr {
+            text-align: center;
+            padding: 32px 0 20px;
+            animation: fadeDn .5s ease;
+        }
+        .hdr-icon {
+            width: 62px; height: 62px;
+            background: linear-gradient(135deg, #d4a61d, #e8b931);
+            border-radius: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 8px 28px rgba(232,185,49,.25);
+            transform: rotate(-2deg);
+            transition: transform .3s ease;
+            position: relative;
+        }
+        .hdr-icon::after {
+            content: '';
+            position: absolute; inset: -4px;
+            border-radius: 22px;
+            border: 2px dashed rgba(232,185,49,.15);
+            pointer-events: none;
+        }
+        .hdr-icon:hover { transform: rotate(0) scale(1.05); }
+        .hdr h1 { font-size: 24px; font-weight: 700; margin-top: 14px; letter-spacing: -.3px; }
+        .hdr p  { font-size: 13px; color: var(--text-3); margin-top: 3px; font-weight: 400; }
+
+        /* ---- Tabs ---- */
+        .tabs {
+            display: flex; gap: 4px;
+            background: var(--surface);
+            border-radius: var(--radius-sm);
+            padding: 4px;
+            box-shadow: 0 2px 14px var(--shadow);
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+            animation: fadeUp .45s ease backwards;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px 8px;
+            font-family: var(--font-main);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-3);
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all .25s ease;
+            letter-spacing: .2px;
+        }
+        .tab-btn.active {
+            background: var(--accent);
+            color: #0c0e14;
+            box-shadow: 0 3px 12px rgba(232,185,49,.3);
+        }
+        .tab-btn:not(.active):hover {
+            background: var(--accent-light);
+            color: var(--accent);
+        }
+
+        /* ---- Tab Panels ---- */
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeUp .3s ease; }
+
+        /* ---- Card ---- */
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 24px 20px;
+            box-shadow: 0 2px 16px var(--shadow), 0 0 0 1px var(--border-light);
+            border: 1px solid var(--border);
+            margin-bottom: 14px;
+            position: relative;
+        }
+        .card::before {
+            content: '';
+            position: absolute; top: 0; left: 20px; right: 20px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            border-radius: 0 0 2px 2px;
+            opacity: .25;
+        }
+
+        .sec-label {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1.6px;
+            margin-bottom: 18px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .sec-label::after {
+            content: ''; flex: 1; height: 1px;
+            background: linear-gradient(90deg, var(--border), transparent);
+        }
+
+        /* ---- Fields ---- */
+        .field { margin-bottom: 16px; }
+        .field:last-child { margin-bottom: 0; }
+        .field label {
+            display: block; font-size: 14px; font-weight: 500;
+            color: var(--text-2); margin-bottom: 6px;
+        }
+        .field input[type="date"],
+        .field input[type="text"],
+        .field textarea {
+            width: 100%;
+            padding: 12px 14px;
+            font-family: var(--font-mono);
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text);
+            background: var(--surface-alt);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            outline: none;
+            transition: border .2s, box-shadow .2s, background .2s;
+            letter-spacing: .8px;
+        }
+        .field textarea {
+            font-family: var(--font-main);
+            letter-spacing: normal;
+            resize: vertical;
+            min-height: 70px;
+            line-height: 1.7;
+        }
+        .field input:focus,
+        .field textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+            background: var(--surface-highlight);
+        }
+        .field input::placeholder,
+        .field textarea::placeholder {
+            color: var(--text-3); font-weight: 400;
+            font-family: var(--font-main); letter-spacing: normal;
+        }
+        .field input.invalid { border-color: var(--danger); box-shadow: 0 0 0 3px var(--danger-light); }
+        .field input.valid   { border-color: var(--green);  box-shadow: 0 0 0 3px var(--green-light); }
+        .hint { font-size: 11.5px; color: var(--text-3); margin-top: 5px; padding-left: 2px; }
+        .row  { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        /* ---- Time dot ---- */
+        .time-dot {
+            display: inline-block; width: 7px; height: 7px;
+            border-radius: 50%; margin-right: 5px; vertical-align: middle;
+            background: var(--border); transition: all .25s;
+        }
+        .time-dot.on { background: var(--green); box-shadow: 0 0 6px rgba(34,197,94,.4); }
+
+        /* ---- Toggle Switch ---- */
+        .toggle-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 16px;
+            background: var(--surface-alt);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            cursor: pointer; user-select: none;
+            transition: all .2s;
+            margin-bottom: 0;
+        }
+        .toggle-row:hover { border-color: var(--accent); }
+        .toggle-row .t-label {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 15px; font-weight: 500; color: var(--text-2);
+        }
+        .toggle-wrap {
+            position: relative; width: 48px; height: 26px; flex-shrink: 0;
+        }
+        .toggle-wrap input { display: none; }
+        .toggle-track {
+            position: absolute; inset: 0;
+            background: var(--border);
+            border-radius: 26px;
+            transition: background .3s ease;
+        }
+        .toggle-wrap input:checked + .toggle-track {
+            background: var(--accent);
+        }
+        .toggle-thumb {
+            position: absolute; top: 3px; left: 3px;
+            width: 20px; height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+            box-shadow: 0 1px 4px rgba(0,0,0,.25);
+        }
+        .toggle-wrap input:checked ~ .toggle-thumb {
+            transform: translateX(22px);
+        }
+
+        /* ---- Collapsible ---- */
+        .collapse { max-height: 0; opacity: 0; overflow: hidden; transition: max-height .45s ease, opacity .3s ease; }
+        .collapse.open { max-height: 300px; opacity: 1; }
+
+        /* ---- Duration bar ---- */
+        .dur-bar {
+            border-radius: var(--radius-sm);
+            display: flex; align-items: center; gap: 14px;
+            color: #0c0e14;
+            max-height: 0; opacity: 0; overflow: hidden;
+            padding: 0 18px; margin-top: 0;
+            transition: max-height .5s cubic-bezier(.34,1.56,.64,1),
+                        opacity .3s ease, padding .35s ease, margin .35s ease;
+            background: linear-gradient(135deg, #e8b931, #f5d060);
+            box-shadow: 0 4px 16px rgba(232,185,49,.25);
+        }
+        .dur-bar.show {
+            max-height: 72px; opacity: 1; padding: 14px 18px; margin-top: 16px;
+        }
+        .dur-bar .dur-icon  { font-size: 22px; }
+        .dur-bar .dur-info  { flex: 1; }
+        .dur-bar .dur-label { font-size: 11px; font-weight: 500; opacity: .7; letter-spacing: .3px; }
+        .dur-bar .dur-val   { font-size: 16px; font-weight: 700; font-family: var(--font-mono); margin-top: 1px; }
+        .dur-bar .dur-unit  { font-family: var(--font-main); font-weight: 500; font-size: 13px; opacity: .75; }
+
+        /* ---- Preview ---- */
+        .pv {
+            background: var(--surface);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 2px 16px var(--shadow), 0 0 0 1px var(--border-light);
+            border: 1px solid var(--border);
+        }
+        .pv-head {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 20px;
+            background: var(--surface-alt);
+            border-bottom: 1px solid var(--border);
+        }
+        .pv-head h3 { font-size: 13px; font-weight: 600; color: var(--text-2); }
+        .pv-tag {
+            font-size: 10px; font-weight: 700; letter-spacing: .8px;
+            color: var(--accent); background: var(--accent-light);
+            padding: 3px 12px; border-radius: 20px;
+            font-family: var(--font-mono);
+            border: 1px solid rgba(232,185,49,.15);
+        }
+        .pv-body { padding: 22px 20px; }
+        .pv-msg  {
+            font-size: 15px;
+            line-height: 2;
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: var(--text);
+            font-family: var(--font-main);
+        }
+        .pv-foot { padding: 10px 20px 18px; }
+
+        .btn {
+            width: 100%; padding: 15px;
+            font-family: var(--font-main);
+            font-size: 16px; font-weight: 600;
+            color: #0c0e14;
+            background: linear-gradient(135deg, #d4a61d, #e8b931);
+            border: none; border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 4px 18px rgba(232,185,49,.3);
+            transition: transform .2s, box-shadow .2s;
+            letter-spacing: .3px;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(232,185,49,.35); }
+        .btn:active { transform: translateY(0); }
+        .btn.done {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: #fff;
+            box-shadow: 0 4px 18px rgba(34,197,94,.3);
+        }
+
+        /* ---- Toast ---- */
+        .toast {
+            position: fixed; bottom: 36px; left: 50%;
+            transform: translateX(-50%) translateY(70px);
+            background: var(--surface); color: var(--text);
+            padding: 13px 28px; border-radius: 40px;
+            font-size: 14px; font-weight: 500;
+            box-shadow: 0 8px 32px rgba(0,0,0,.3);
+            opacity: 0; pointer-events: none; z-index: 99;
+            transition: all .4s cubic-bezier(.34,1.56,.64,1);
+            border: 1px solid var(--border);
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        .foot {
+            text-align: center; font-size: 12px;
+            color: var(--text-3); margin-top: 22px;
+            animation: fadeUp .4s ease .42s backwards;
+        }
+
+        /* ---- Step numbers ---- */
+        .step-num {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 22px; height: 22px;
+            background: var(--accent-light);
+            color: var(--accent);
+            font-size: 11px; font-weight: 700;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            flex-shrink: 0;
+        }
+
+        @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes fadeDn { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+
+        @media (max-width: 380px) {
+            .app { padding: 8px 10px 36px; }
+            .card { padding: 20px 14px; }
+            .tab-btn { font-size: 13px; padding: 10px 6px; }
+        }
+    </style>
+<!-- ===== UACJ THEME (generated by apply-theme.py — do not edit here) ===== -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAAwFBMVEX////+/////v/+/v/+/v7+/v39/f3y///u//3r/vr8/P38/Pz4+frp+/bn+fXm+PTl+PTk9vLj9/Pj9fPj9fHi9vfo9uXl9PHi9PHi9PDi8/Dh8/Hj8+rq7/Dv7Lfy4p3+31nv0Wbg8u/e7+zZ6ufZ6ubc18PU5OHQ08/DytOJwbrBrnuqraacoaObineEiIZ1dnFOeXhWWVtUU1pRU1lLTE88O0A0MjcxMjoxMjkwMTcsLTQnJi0hICkZFyEQDxsO4sBOAAAFqklEQVR42qVXC1ejOhCOVy4PKXRbW49U2YXQSligxEiiltf//1d3EsDWPWjd61fxKJ35MplXJgj1sOEhOWVPZ8FoTgaFIzQN+XnZtE11eD2DQwViZe5LnTfoCGWiq2iWxLvtbvsJ4Os4yWjViUypjfo+7Q55bJqW487PwHUs04zzQ0f9kQH0eUdjw8UYe18AiLlGTDs+MGga6BemE3mrL8OLHLMABuUHXaNdYXh49VfAnlF09B9dhiPrqLWZXF4avMGbaSM8i3YZqGu+eIkdPLnID3CZYzneJDt24hfhwx7yLjeiKQFwyzaOSUIc9x3D+E9kgCq4oDzs5hNLeFb2JMRzVTc1i+dYYvjmxyDtufGh1BFpqInHbY2LYxw5WVMJzsvHx7JlpgXBt5Sjr1fb0SBs0oagvM0GgsV6vVDvFyBtGmX1+PtR4ndZJyTJssRx8AIbhYgHBmxmbY5ok1g9gffwIL/A1gqk8/yZP46om1aCxU7kkKodTcZW0lDEqtiRet76IU0f1h685VK6qcWg/vuxLvIsy4pW7BYWq/m4pOfEFUNPgw+95S5Nd0vJ+pJnCYlpOxCAD/qcT9riImtpWD+pJVfefHd4Qk+v2z4I3vL+fundumW1U+I+a6XlDUTBt2c2AHE+589BsO8yAyuC7esJATAsvTuHNAUCcd1GdgaGJ2AL1Avqc14UXZqyQIitjOWfBDKMsIM211S30U7bTd+0aF3xgLVhCsWDJwgAG7AgH9qVZivo+lvXK5oqDVgTwkMg+6cIwLGwBfu02SlcKIK8o0FA6zAIG2Z9QODGNRBotqbpM5Yfu5bk+peBbhDCE1CZfpME86iiygIwuEuQ7ft+BH0QMIO630tdIVmeOV5spgiWWFAo8VyKQ6n5yQgyQ6UIJMGzNCGVJkwQQK0JSBvSUVIziIa0wPdnANhM+Ry+Yf8hgcNLdIWypn7xtVMPqJdV1dR1LZ+W4cWUD1Ybq+TSAUmdoNnVEIXLy757Zw0rBuSR600SYJMJHcHauzECl5d9JCETY6he0+gBqfgBAX2eAYEtrShOjy8ghBwxI9zDW31AYNDKl2lsI78uNe0K/OerWM7g/KxVCh9jPklQ1EAQ++iK1RHSyVscIwhqRb9C0MD2BfdzmUcI+vJuG0kbdA3NXt765ycEeRsjLanF+5pQ5akL9iUCApqk5tAVNHR5MZSTcicvrc05Aui0YDowxCeVdDGYUHJn9TUCqQyJ46P3cWTix3mCpJVHJrJnUP5EblxG0u4JqMBL7wyB7GnQEGBl0hYQOUJkJMnQ0w7R/ByBQ4AA5SKavXCZOwkh0Az8oafVO/cMQd/TdFIJ1ig36kdXyqbYn0KfEaieNkM7oaYHNBaUItByaKabMwTzbUWhH6O46MPY54Gu6za49QsWrBYLaElSGPU9/TSOcc0c70wYZT1DIpzChnLcwaSS5VU9nuSfEIAToAzUAV8UlDLOxWs1nO/8nf4HBJAJ5EmJw7F6EIIzRim0MHlOzgf929vPCCAVnKQ/VeMo8lyYbgxT/pjWahhlXHcxTeAtFvLPzbWaceCXYxjmnWVhy8V3gF5ucZckd4sjwXFI8xyMpZfX94BdfpMkcVFkTpY5eTK/v7+5Xyv7Xdmf3NtxwBhHHOk+QilxvfVPeQCFPNzvUx6KkPGwkmdaEPxcvydQI85xyIJulqaFcXejhAPOOBBQFuwZfPp3N+vTLfRD1nHMgwBSGrvrniDkAVjAUh7QPd+/EXgnTuzHvNNB04ki2M71LyW8h4M8TIN9mMqPevVruToNYz9owqg7Do5DFK6vb35O4ub6evU+5SoYdaeG7fUHeC81DNsw7r/+Oe5/dNn5c9x/leP+ZxeOT289m+HCMVx5Nv/ryqMmiG9fur597Rsuni9/d/F8Pbl4fv/q+/3L93j9z4qvXP+L7PT6/x80Z6lqH2QFDQAAAABJRU5ErkJggg==">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#005BAA">
+<style id="uacj-theme">
+/* ============================================================================
+   UACJ THEME v2 "STICKER"  —  Shared visual layer
+   REPORT / STOP / QIC / BACKUP
+   ----------------------------------------------------------------------------
+   แนวทาง: เส้นขอบดำบาง + สีพาสเทล + ไฮไลต์เหลือง + ปุ่มทรงแคปซูล
+            ไม่มีเงาหนัก ไม่มี gradient ไม่มี glass
+
+   ชั้นแต่งหน้าอย่างเดียว ไม่มี logic ไม่แตะ markup ของโมดูล
+   แก้ไฟล์นี้ไฟล์เดียว → รัน  python3 apply-theme.py  → เปลี่ยนครบทั้ง 4 โมดูล
+   โมดูลถูกแยกด้วย  <html data-uacj="report|stop|qic|backup">
+
+   ธีมสีน้ำเงิน UACJ เดิมเก็บไว้ที่ uacj-theme-v1-blue.css
+   ========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   1. DESIGN TOKENS
+   ------------------------------------------------------------------------ */
+:root{
+  --u-primary:#2FB3A3;          /* เขียวมิ้นต์ — ปุ่มหลัก แท็บที่เลือก */
+  --u-primary-hover:#279487;
+  --u-primary-deep:#1F8A7D;
+  --u-secondary:#5AC8BC;
+  --u-light:#E3F5F1;            /* พื้นอ่อนของสีหลัก */
+
+  --u-yellow:#FFDE5C;           /* ไฮไลต์ เน้นคำสำคัญ */
+  --u-yellow-deep:#F0C000;
+  --u-pink:#F79489;
+  --u-pink-tint:#FCE7E3;
+  --u-lilac:#A99BE8;
+  --u-lilac-tint:#EFEBFB;
+  --u-cream:#FFF6DC;
+
+  --u-bg:#FBFBFC;
+  --u-white:#FFFFFF;
+  --u-ink:#2C2C34;              /* สีเส้นขอบและตัวอักษร */
+  --u-text:#2C2C34;
+  --u-text-2:#767A85;
+  --u-text-3:#A9ADB6;
+
+  --u-success:#2FB3A3;
+  --u-warning:#F0B429;
+  --u-danger:#F26D63;
+
+  --u-border:var(--u-ink);
+  --u-border-card:var(--u-ink);
+  --u-border-soft:#E6E8EC;
+  --u-line:1.6px;
+
+  --u-tint-primary:var(--u-light);
+  --u-ring:rgba(47,179,163,.28);
+  --u-tint-success:#E3F5F1;
+  --u-tint-warning:#FFF3D6;
+  --u-tint-danger:#FCE7E3;
+
+  --u-s1:4px; --u-s2:8px; --u-s3:12px; --u-s4:16px; --u-s5:20px; --u-s6:24px; --u-s7:32px;
+
+  --u-r-input:14px;
+  --u-r-btn:999px;              /* ปุ่มหลักเป็นแคปซูล */
+  --u-r-card:20px;
+  --u-r-chip:999px;
+  --u-h-control:48px;
+
+  --u-shadow:none;
+  --u-shadow-raise:0 4px 0 var(--u-ink);
+
+  --u-font:'Kanit','IBM Plex Sans Thai','Prompt',system-ui,sans-serif;
+
+  --u-accent:var(--u-primary);
+  --u-accent-tint:var(--u-light);
+}
+/* สีประจำโมดูล — ใช้กับหัวเรื่อง ไอคอน และป้ายชื่อโมดูล */
+html[data-uacj="report"]{ --u-accent:#2FB3A3; --u-accent-tint:#E3F5F1; }
+html[data-uacj="stop"]  { --u-accent:#F26D63; --u-accent-tint:#FCE7E3; }
+html[data-uacj="qic"]   { --u-accent:#F0B429; --u-accent-tint:#FFF3D6; }
+html[data-uacj="backup"]{ --u-accent:#8B7BE0; --u-accent-tint:#EFEBFB; }
+
+/* ---------------------------------------------------------------------------
+   2. REMAP ตัวแปรเดิมของแต่ละโมดูล → tokens ชุดใหม่
+   ------------------------------------------------------------------------ */
+html[data-uacj="report"]{
+  --bg:var(--u-bg); --surface:var(--u-white); --surface-solid:var(--u-white);
+  --raised:var(--u-light); --hover:var(--u-light);
+  --border:var(--u-ink); --border-l:var(--u-border-soft);
+  --text:var(--u-text); --text2:var(--u-text-2); --muted:var(--u-text-3);
+  --accent:var(--u-primary); --accent-s:var(--u-light); --accent-b:var(--u-ink);
+  --blue:var(--u-primary);   --blue-s:var(--u-light);   --blue-b:var(--u-ink);
+  --red:var(--u-danger);   --red-s:var(--u-tint-danger);   --red-b:var(--u-ink);
+  --amber:var(--u-warning);--amber-s:var(--u-tint-warning);--amber-b:var(--u-ink);
+  --green:var(--u-success);--green-s:var(--u-tint-success);--green-b:var(--u-ink);
+  --cyan:var(--u-lilac);   --cyan-s:var(--u-lilac-tint);   --cyan-b:var(--u-ink);
+  --r:var(--u-r-card); --rs:var(--u-r-input);
+  --font:var(--u-font); --mono:var(--u-font);
+  --shadow:none; --shadow-md:none;
+}
+html[data-uacj="stop"]{
+  --bg:var(--u-bg); --surface:var(--u-white);
+  --surface-alt:var(--u-white); --surface-highlight:var(--u-light);
+  --accent:var(--u-primary); --accent-hover:var(--u-primary-deep);
+  --accent-light:var(--u-light); --accent-glow:var(--u-ring);
+  --green:var(--u-success);  --green-light:var(--u-tint-success);
+  --cyan:var(--u-lilac);     --cyan-light:var(--u-lilac-tint);
+  --danger:var(--u-danger);  --danger-light:var(--u-tint-danger);
+  --text:var(--u-text); --text-2:var(--u-text-2); --text-3:var(--u-text-3);
+  --border:var(--u-ink); --border-light:var(--u-border-soft);
+  --shadow:transparent; --shadow-md:transparent;
+  --radius:var(--u-r-card); --radius-sm:var(--u-r-input);
+  --font-main:var(--u-font); --font-mono:var(--u-font);
+}
+html[data-uacj="qic"]{
+  --bg:var(--u-bg); --surface:var(--u-white); --surface-alt:var(--u-white);
+  --border:var(--u-ink); --border-light:var(--u-border-soft);
+  --accent:var(--u-primary); --accent-bg:var(--u-light);
+  --accent-hover:var(--u-primary-deep); --accent-ring:var(--u-ring);
+  --red:var(--u-danger);   --red-bg:var(--u-tint-danger);
+  --green:var(--u-success);--green-bg:var(--u-tint-success);
+  --blue:var(--u-lilac);   --blue-bg:var(--u-lilac-tint);
+  --text:var(--u-text); --text-sec:var(--u-text-2); --text-muted:var(--u-text-3);
+  --shadow-sm:none; --shadow:none;
+  --radius:var(--u-r-input); --radius-lg:var(--u-r-card);
+}
+html[data-uacj="backup"]{
+  --white:var(--u-white); --off:var(--u-white);
+  --gray:var(--u-border-soft); --gray-2:var(--u-ink);
+  --text:var(--u-text); --text-sec:var(--u-text-2); --text-muted:var(--u-text-3);
+  --blue:var(--u-primary); --cyan:var(--u-secondary); --violet:var(--u-accent);
+  --danger:var(--u-danger); --danger-bg:var(--u-tint-danger);
+  --cancel-accent:var(--u-accent); --cancel-bg:var(--u-lilac-tint);
+  --success:var(--u-success);
+  --shadow-sm:none; --shadow:none; --shadow-lg:none;
+  --radius:var(--u-r-card); --radius-md:16px; --radius-sm:var(--u-r-input);
+  --gradient:var(--u-primary);
+}
+
+/* ---------------------------------------------------------------------------
+   3. TYPOGRAPHY
+   ------------------------------------------------------------------------ */
+body, button, input, select, textarea, optgroup,
+h1, h2, h3, h4, h5, h6, p, label, small, strong, th, td{
+  font-family:var(--u-font) !important;
+}
+body{
+  background:var(--u-bg) !important;
+  color:var(--u-text) !important;
+  -webkit-font-smoothing:antialiased;
+}
+h1{ font-size:25px; font-weight:600; letter-spacing:-.2px; }
+h2{ font-size:20px; font-weight:600; }
+h3{ font-size:17px; font-weight:500; }
+label, .field label, .form-group label, .f-label, .eg label{
+  font-size:14px; font-weight:500; color:var(--u-text) !important;
+}
+small, .hint, .caption, .f-note, .card-sub, .card-title-sub{
+  font-size:12.5px; font-weight:300; color:var(--u-text-2) !important;
+}
+
+.card-title, .sub-label, .f-label, .sec-title{
+  color:var(--u-text) !important;
+  font-weight:500 !important;
+}
+/* ปากกาไฮไลต์เหลืองใต้หัวข้อส่วน — ลายเซ็นของธีมนี้ */
+.sec-label{
+  color:var(--u-ink) !important;
+  font-weight:500 !important;
+  letter-spacing:.4px !important;
+  font-size:13px !important;
+  background-image:linear-gradient(var(--u-yellow),var(--u-yellow)) !important;
+  background-repeat:no-repeat !important;
+  background-size:100% 7px !important;
+  background-position:0 86% !important;
+  width:fit-content !important;          /* ให้ไฮไลต์พอดีกับข้อความ ไม่ลากยาวทั้งแถว */
+}
+
+/* แถบสรุประยะเวลาใน STOP — เดิมเป็น gradient ทอง */
+.dur-bar{
+  background:var(--u-yellow) !important;
+  color:var(--u-ink) !important;
+  box-shadow:none !important;
+}
+.dur-bar .dur-label{ opacity:.75 !important; }
+
+/* ---------------------------------------------------------------------------
+   4. ตัดของตกแต่งที่ไม่ได้ทำหน้าที่ (orb / noise / glow / glass)
+   ------------------------------------------------------------------------ */
+.bg-anim, .ambient, .orb{ display:none !important; }
+html[data-uacj="stop"] body::before,
+html[data-uacj="stop"] body::after{ display:none !important; content:none !important; }
+.card::before, .type-btn::before, .hdr-icon::after, .sec-label::after,
+.btn-primary::before, .card-ico::after{ display:none !important; }
+*{ backdrop-filter:none !important; -webkit-backdrop-filter:none !important; }
+
+/* ---------------------------------------------------------------------------
+   5. CARD — ขาว ขอบดำบาง มุมมน ไม่มีเงา
+   ------------------------------------------------------------------------ */
+@keyframes uacjRise{
+  from{ opacity:0; transform:translateY(12px); }
+  to  { opacity:1; transform:none; }
+}
+@keyframes uacjPop{
+  0%{ transform:scale(.92); } 60%{ transform:scale(1.05); } 100%{ transform:scale(1); }
+}
+
+.card, .pv, .panel, .preview-card, .hist-card, .h-item, .entry,
+.qic-entry, .history-item, .modal-box, .bs-sheet, .sp-body{
+  background:var(--u-white) !important;
+  border:var(--u-line) solid var(--u-ink) !important;
+  border-radius:var(--u-r-card) !important;
+  box-shadow:none !important;
+}
+.card{
+  padding:var(--u-s5) !important;
+  margin-bottom:var(--u-s4) !important;
+  animation:uacjRise .42s cubic-bezier(.22,1,.36,1) both !important;
+}
+.card:hover{ transform:none !important; }
+.entry, .qic-entry, .h-item, .history-item{ border-radius:16px !important; }
+/* การ์ดซ้อนในการ์ด ใช้พื้นพาสเทลแทน เพื่อไม่ให้ขอบดำซ้อนกันจนลายตา */
+.card .entry, .card .qic-entry, .card .sub-sec{
+  background:var(--u-accent-tint) !important;
+  border-color:var(--u-ink) !important;
+}
+
+/* ---------------------------------------------------------------------------
+   6. BUTTON — แคปซูล ขอบดำ มีเงาทึบ กดแล้วยุบลง
+   ------------------------------------------------------------------------ */
+button{ font-family:var(--u-font) !important; letter-spacing:0 !important; }
+.btn, .btn-primary, .btn-secondary, .btn-gen, .btn-sp,
+.modal-btn, .add-btn, .suggest-btn, .btn-add, .btn-load, .btn-clr, .h-clear{
+  font-family:var(--u-font) !important;
+  font-size:15px !important;
+  font-weight:500 !important;
+  border-radius:var(--u-r-btn) !important;
+  letter-spacing:0 !important;
+  transition:transform .12s ease, background .16s ease, box-shadow .12s ease !important;
+}
+.btn, .btn-primary, .btn-gen, .btn-sp, .modal-btn{
+  min-height:var(--u-h-control) !important;
+  background:var(--u-primary) !important;
+  color:var(--u-white) !important;
+  border:var(--u-line) solid var(--u-ink) !important;
+  box-shadow:0 3px 0 var(--u-ink) !important;
+  transform:none !important;
+}
+.btn:hover, .btn-primary:hover, .btn-gen:hover, .btn-sp:hover, .modal-btn:hover{
+  background:var(--u-primary-deep) !important;
+  transform:none !important;
+  box-shadow:0 3px 0 var(--u-ink) !important;
+}
+.btn:active, .btn-primary:active, .btn-gen:active, .btn-sp:active, .modal-btn:active{
+  transform:translateY(3px) !important;
+  box-shadow:0 0 0 var(--u-ink) !important;
+}
+.btn.done, .btn-primary.done{
+  background:var(--u-yellow) !important;
+  color:var(--u-ink) !important;
+  animation:uacjPop .3s ease !important;
+}
+.btn-secondary, .btn-add, .btn-load, .add-btn, .suggest-btn, .h-copy-btn{
+  background:var(--u-white) !important;
+  color:var(--u-ink) !important;
+  border:var(--u-line) dashed var(--u-ink) !important;
+  box-shadow:none !important;
+  min-height:42px !important;
+}
+.btn-secondary:hover, .btn-add:hover, .btn-load:hover, .add-btn:hover, .suggest-btn:hover{
+  background:var(--u-light) !important;
+  border-style:solid !important;
+  transform:none !important;
+}
+.btn.btn-ghost, .btn.btn-secondary, .btn.btn-load{
+  background:var(--u-white) !important;
+  color:var(--u-text-2) !important;
+  border:var(--u-line) dashed var(--u-ink) !important;
+  box-shadow:none !important;
+}
+.btn.btn-ghost:active{ transform:translateY(2px) !important; }
+.btn.btn-ghost:hover{
+  background:var(--u-tint-danger) !important;
+  color:var(--u-danger) !important;
+  border-style:solid !important;
+}
+.btn-sm{ min-height:42px !important; font-size:14px !important; }
+.btn-rm, .btn-del, .btn-del-h, .btn-clr, .h-clear, .h-del, .entry-x, .cst-clear{
+  color:var(--u-danger) !important;
+  background:var(--u-white) !important;
+  border:1.4px solid var(--u-ink) !important;
+  border-radius:999px !important;
+  box-shadow:none !important;
+}
+.btn-rm:hover, .btn-del:hover, .btn-del-h:hover, .btn-clr:hover, .h-clear:hover,
+.h-del:hover, .entry-x:hover{
+  background:var(--u-tint-danger) !important;
+  color:var(--u-danger) !important;
+}
+button:disabled, .btn:disabled{
+  background:var(--u-border-soft) !important;
+  border-color:var(--u-text-3) !important;
+  color:var(--u-text-3) !important;
+  box-shadow:none !important;
+  cursor:not-allowed !important;
+}
+
+/* ---------------------------------------------------------------------------
+   7. INPUT — ขาว ขอบดำบาง โฟกัสแล้วมีวงเขียว
+   ------------------------------------------------------------------------ */
+input[type="text"], input[type="date"], input[type="time"], input[type="number"],
+input[type="tel"], select, textarea,
+.inp-date, .inp-time, .inp-text, .inp-num, .inp-area, .f-input, .f-textarea{
+  font-family:var(--u-font) !important;
+  font-size:15px !important;
+  font-weight:400 !important;
+  letter-spacing:0 !important;
+  color:var(--u-text) !important;
+  background:var(--u-white) !important;
+  border:var(--u-line) solid var(--u-ink) !important;
+  border-radius:var(--u-r-input) !important;
+  box-shadow:none !important;
+  transition:box-shadow .16s ease !important;
+}
+input[type="text"], input[type="date"], input[type="time"], input[type="number"],
+input[type="tel"], select{
+  min-height:var(--u-h-control) !important;
+  padding:10px 15px !important;
+}
+textarea, .inp-area, .f-textarea{ padding:12px 15px !important; line-height:1.75 !important; }
+input:focus, select:focus, textarea:focus,
+.inp-date:focus, .inp-time:focus, .inp-text:focus, .inp-num:focus, .inp-area:focus,
+.f-input:focus, .f-textarea:focus{
+  border-color:var(--u-ink) !important;
+  box-shadow:0 0 0 4px var(--u-ring) !important;
+  background:var(--u-white) !important;
+  outline:none !important;
+}
+::placeholder{ color:var(--u-text-3) !important; font-weight:300 !important; }
+input.invalid{ border-color:var(--u-danger) !important; box-shadow:0 0 0 4px rgba(242,109,99,.22) !important; }
+input.valid  { box-shadow:0 0 0 4px var(--u-ring) !important; }
+.summary-num, .nr-result, .dur-val, .qi-text{ font-weight:600 !important; color:var(--u-ink) !important; }
+
+/* ---------------------------------------------------------------------------
+   8. CHIP / TOGGLE — แคปซูล เลือกแล้วเด้ง
+   ------------------------------------------------------------------------ */
+.chip, .nr-tag, .cascade-btn, .type-btn, .chip-pos, .bs-option{
+  font-family:var(--u-font) !important;
+  font-size:13px !important;
+  font-weight:400 !important;
+  border-radius:999px !important;
+  padding:7px 14px !important;
+  box-shadow:none !important;
+  transition:transform .14s ease, background .16s ease !important;
+}
+.chip, .chip-pos{
+  background:var(--u-white) !important;
+  color:var(--u-text-2) !important;
+  border:1.4px solid var(--u-ink) !important;
+}
+.chip:active, .nr-tag:active, .cascade-btn:active{ transform:scale(.95) !important; }
+.chip.active, .chip.chip-sel, .chip-pos.active, .bs-option.bs-selected,
+.cascade-btn.cascade-active{
+  background:var(--u-primary) !important;
+  border-color:var(--u-ink) !important;
+  color:var(--u-white) !important;
+  font-weight:500 !important;
+  box-shadow:none !important;
+  animation:uacjPop .28s ease !important;
+}
+.toggle-track, .toggle::after, .sw, .switch{ box-shadow:none !important; }
+.toggle-track, .switch, .sw{ border:1.4px solid var(--u-ink) !important; }
+.toggle-wrap input:checked + .toggle-track,
+.toggle input:checked + .toggle-track{ background:var(--u-primary) !important; }
+
+/* ---------------------------------------------------------------------------
+   9. HEADER — การ์ดพาสเทลขอบดำ สีตามโมดูล
+   ------------------------------------------------------------------------ */
+.header, .hdr, .hero{
+  opacity:1 !important;
+  background:var(--u-accent-tint) !important;
+  border:var(--u-line) solid var(--u-ink) !important;
+  border-radius:var(--u-r-card) !important;
+  box-shadow:none !important;
+  text-align:left !important;
+  padding:var(--u-s5) !important;
+  margin-bottom:var(--u-s4) !important;
+  animation:uacjRise .45s cubic-bezier(.22,1,.36,1) both !important;
+}
+.hero h1{ background:none !important; -webkit-text-fill-color:var(--u-ink) !important; }
+.header h1, .hdr h1, .hero h1{
+  font-size:22px !important; font-weight:600 !important;
+  color:var(--u-ink) !important; margin:0 !important; letter-spacing:-.2px !important;
+}
+.header p, .hdr p, .hero p{
+  font-size:13px !important; font-weight:300 !important;
+  color:var(--u-text-2) !important; margin:4px 0 0 !important;
+}
+.hdr-icon, .header-badge{
+  width:48px !important; height:48px !important; min-width:48px !important;
+  background:var(--u-white) !important;
+  border:var(--u-line) solid var(--u-ink) !important;
+  border-radius:16px !important;
+  font-size:22px !important;
+  box-shadow:0 3px 0 var(--u-ink) !important;
+  transform:none !important;
+  margin:0 0 var(--u-s3) !important;
+  display:inline-flex !important; align-items:center !important; justify-content:center !important;
+}
+.hdr-icon:hover{ transform:none !important; }
+.sticky-top{ background:var(--u-bg) !important; box-shadow:none !important; border:0 !important; }
+.hero-badge{
+  background:var(--u-white) !important;
+  border:1.4px solid var(--u-ink) !important;
+  color:var(--u-ink) !important;
+  font-size:12px !important; font-weight:500 !important;
+  border-radius:999px !important; padding:4px 12px !important;
+  margin-bottom:var(--u-s3) !important;
+}
+
+/* ---------------------------------------------------------------------------
+   10. TAB
+   ------------------------------------------------------------------------ */
+.tabs, .page-tabs, .tab-bar{
+  background:var(--u-white) !important;
+  border:var(--u-line) solid var(--u-ink) !important;
+  border-radius:999px !important;
+  padding:var(--u-s1) !important;
+  box-shadow:none !important;
+  gap:var(--u-s1) !important;
+  animation:none !important;
+}
+.tab, .tab-btn, .page-tab{
+  font-family:var(--u-font) !important;
+  font-size:13.5px !important;
+  font-weight:500 !important;
+  color:var(--u-text-2) !important;
+  background:transparent !important;
+  border:0 !important;
+  border-radius:999px !important;
+  min-height:38px !important;
+  padding:8px 12px !important;
+  box-shadow:none !important;
+  transition:background .18s ease, color .18s ease !important;
+}
+.tab.active, .tab-btn.active, .page-tab.active,
+.tab[data-tab="normal"].active{
+  background:var(--u-primary) !important;
+  color:var(--u-white) !important;
+  box-shadow:none !important;
+}
+.tab-btn:not(.active):hover, .page-tab:hover:not(.active), .tab:not(.active):hover{
+  background:var(--u-light) !important;
+  color:var(--u-ink) !important;
+}
+/* REPORT ใช้แถบแท็บแบบเลื่อนแนวนอน — คงโครงเดิม */
+html[data-uacj="report"] .tabs{
+  background:transparent !important; border:0 !important;
+  padding:0 var(--u-s1) var(--u-s3) !important;
+}
+html[data-uacj="report"] .tab{
+  background:var(--u-white) !important;
+  border:1.4px solid var(--u-ink) !important;
+  min-height:34px !important; padding:6px 14px !important; font-size:13px !important;
+}
+html[data-uacj="report"] .tab.active,
+html[data-uacj="report"] .tab[data-tab="normal"].active{
+  background:var(--u-primary) !important; color:var(--u-white) !important;
+}
+
+/* ---------------------------------------------------------------------------
+   11. STATUS / BADGE
+   ------------------------------------------------------------------------ */
+.badge-normal, .pv-tag, .preview-badge, .tab-badge, .badge-c, .hdr-badge,
+.entry-tag, .hero-dot, .sp-badge{
+  font-family:var(--u-font) !important;
+  font-size:12px !important; font-weight:500 !important;
+  border-radius:999px !important; letter-spacing:0 !important; box-shadow:none !important;
+}
+.pv-tag, .preview-badge, .sp-badge{
+  background:var(--u-yellow) !important;
+  color:var(--u-ink) !important;
+  border:1.4px solid var(--u-ink) !important;
+  padding:3px 11px !important;
+}
+.badge-c, .tab-badge, .hdr-badge{
+  background:var(--u-pink) !important; color:var(--u-white) !important;
+  border:1.4px solid var(--u-ink) !important;
+}
+.time-dot.on, .hero-dot{ background:var(--u-primary) !important; box-shadow:none !important; animation:none !important; }
+.qic-entry-head .h-title, .entry-top .entry-tag{ font-size:14px !important; }
+.step-num, .nr-step-num{
+  min-width:28px !important; height:28px !important; font-size:13px !important;
+  background:var(--u-yellow) !important;
+  color:var(--u-ink) !important;
+  border:1.4px solid var(--u-ink) !important;
+  border-radius:999px !important;
+  font-weight:600 !important; box-shadow:none !important;
+}
+
+/* ---------------------------------------------------------------------------
+   12. PREVIEW — กล่องข้อความที่จะ copy เข้า Line
+   ------------------------------------------------------------------------ */
+.pv-msg, .pv-text, .preview-box, .p-code, .h-pre, .hist-preview, .history-preview{
+  font-family:var(--u-font) !important;
+  font-size:14.5px !important; font-weight:400 !important;
+  line-height:1.9 !important;
+  color:var(--u-ink) !important;
+  background:var(--u-cream) !important;
+  border:1.4px dashed var(--u-ink) !important;
+  border-radius:16px !important;
+  white-space:pre-wrap !important;
+}
+.pv-head, .preview-header, .card-header, .card-head, .hist-hd, .h-row{
+  background:transparent !important;
+  border-bottom:1.4px solid var(--u-border-soft) !important;
+}
+
+/* ---------------------------------------------------------------------------
+   13. TABLE
+   ------------------------------------------------------------------------ */
+table{ width:100%; border-collapse:separate; border-spacing:0; font-size:14px;
+  border:var(--u-line) solid var(--u-ink); border-radius:16px; overflow:hidden; }
+th{
+  background:var(--u-light) !important; color:var(--u-ink) !important;
+  font-weight:500 !important; text-align:left;
+  padding:11px 14px !important; border-bottom:1.4px solid var(--u-ink) !important;
+}
+td{
+  background:var(--u-white) !important; padding:11px 14px !important;
+  border-bottom:1px solid var(--u-border-soft) !important;
+}
+tbody tr:hover td{ background:var(--u-light) !important; }
+
+/* ---------------------------------------------------------------------------
+   14. TOAST / MODAL
+   ------------------------------------------------------------------------ */
+.toast{
+  font-family:var(--u-font) !important;
+  font-size:14px !important; font-weight:500 !important;
+  background:var(--u-ink) !important; color:var(--u-white) !important;
+  border:0 !important; border-radius:999px !important;
+  box-shadow:0 4px 0 rgba(44,44,52,.25) !important;
+  padding:13px 24px !important;
+}
+.modal-overlay, .bs-overlay, .sp-bg{ background:rgba(44,44,52,.42) !important; }
+.modal-icon{ box-shadow:none !important; }
+
+/* ---------------------------------------------------------------------------
+   15. LAYOUT
+   ------------------------------------------------------------------------ */
+.app, .main{
+  max-width:480px !important; margin:0 auto !important;
+  padding:var(--u-s4) var(--u-s4) var(--u-s7) !important;
+}
+.foot, .h-footer{ color:var(--u-text-3) !important; font-size:12px !important; animation:none !important; }
+.tab-panel.active, .sec.active, .panel{ animation:none !important; }
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{ animation-duration:.001s !important; transition-duration:.001s !important; }
+}
+
+</style>
+<!-- ===== /UACJ THEME ===== -->
+</head>
+<body>
+<div class="app">
+
+    <!-- Header -->
+    <div class="hdr">
+        <div class="hdr-icon">📢</div>
+        <h1>HRM MACHINE STATUS</h1>
+        <p>แจ้งสถานะเครื่องจักรเข้า Line กลุ่ม</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab-btn active" id="tabForm" onclick="switchTab('form')">📝 กรอกข้อมูล</button>
+        <button class="tab-btn" id="tabPreview" onclick="switchTab('preview')">👁️ ดูตัวอย่าง</button>
+    </div>
+
+    <!-- ========== Panel: Form ========== -->
+    <div id="secForm" class="tab-panel active">
+
+        <!-- Section 1: Finish Rolling -->
+        <div class="card">
+            <div class="sec-label"><span class="step-num">1</span> Finish Rolling</div>
+
+            <div class="field">
+                <label>🏁 วันที่รีดเสร็จ</label>
+                <input type="date" id="fDate">
+            </div>
+
+            <div class="field">
+                <label><span class="time-dot" id="dotFinish"></span>🕒 เวลาที่รีดเสร็จ</label>
+                <input type="text" id="fFinish" inputmode="numeric" placeholder="เช่น 0830" autocomplete="off">
+            </div>
+            <div class="hint">พิมพ์ตัวเลข 4 หลัก ระบบจะใส่ : ให้อัตโนมัติ</div>
+        </div>
+
+        <!-- Section 2: RM Tasks (Toggle) -->
+        <div class="card">
+            <div class="sec-label"><span class="step-num">2</span> งาน RM เมื่อหยุดเครื่อง</div>
+
+            <div class="toggle-row" id="toggleRmRow">
+                <span class="t-label">🔧 เปิดใช้งานส่วนนี้</span>
+                <label class="toggle-wrap">
+                    <input type="checkbox" id="incRm" checked>
+                    <span class="toggle-track"></span>
+                    <span class="toggle-thumb"></span>
+                </label>
+            </div>
+
+            <div class="collapse open" id="rmWrap">
+                <div class="field" style="margin-top:16px;">
+                    <label>📋 รายละเอียดงาน RM</label>
+                    <textarea id="fRmTask" placeholder="เช่น เปลี่ยนผ้ารีด, ตรวจเช็คระบบหล่อลื่น, ซ่อมบำรุงลูกกลิ้ง..." autocomplete="off"></textarea>
+                </div>
+                <div class="hint">กรอกรายละเอียดงานที่ RM ต้องทำระหว่างหยุดเครื่อง</div>
+            </div>
+        </div>
+
+        <!-- Section 3: Come back prepare rolling -->
+        <div class="card">
+            <div class="sec-label"><span class="step-num">3</span> กลับมาเตรียมรีด</div>
+
+            <div class="field">
+                <label><span class="time-dot" id="dotComeback"></span>🚀 เวลาที่กลับมาเตรียมรีด</label>
+                <input type="text" id="fComeback" inputmode="numeric" placeholder="เช่น 1400" autocomplete="off">
+            </div>
+            <div class="hint">พิมพ์ตัวเลข 4 หลัก ระบบจะใส่ : ให้อัตโนมัติ</div>
+
+            <div class="dur-bar" id="durBar">
+                <span class="dur-icon">⏱️</span>
+                <div class="dur-info">
+                    <div class="dur-label">เวลาที่เครื่องจักรหยุดการผลิต</div>
+                    <div class="dur-val" id="durVal">—</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== Panel: Preview ========== -->
+    <div id="secPreview" class="tab-panel">
+        <div class="pv">
+            <div class="pv-head">
+                <h3>📄 ตัวอย่างข้อความ</h3>
+                <span class="pv-tag">LIVE</span>
+            </div>
+            <div class="pv-body">
+                <div class="pv-msg" id="pvMsg"></div>
+            </div>
+            <div class="pv-foot">
+                <button class="btn" id="btnCopy" onclick="copyMsg()">
+                    <span id="cIco">📋</span>
+                    <span id="cLbl">คัดลอกข้อความ</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="foot">แตะปุ่มคัดลอก แล้ววางใน Line ได้เลย</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== INIT =====
+const now = new Date();
+document.getElementById('fDate').value = ds(now);
+document.getElementById('fFinish').value = ts(now);
+
+const come = new Date(now);
+come.setHours(come.getHours() + 4);
+document.getElementById('fComeback').value = ts(come);
+
+// ===== TABS =====
+function switchTab(name){
+    document.getElementById('secForm').classList.toggle('active', name==='form');
+    document.getElementById('secPreview').classList.toggle('active', name==='preview');
+    document.getElementById('tabForm').classList.toggle('active', name==='form');
+    document.getElementById('tabPreview').classList.toggle('active', name==='preview');
+    if(name==='preview') render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===== TIME INPUT AUTO-FORMAT =====
+['fFinish','fComeback'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('input', function(){
+        let d = this.value.replace(/\D/g,'').slice(0,4);
+        this.value = d.length > 2 ? d.slice(0,2)+':'+d.slice(2) : d;
+        validate(this); render();
+    });
+    el.addEventListener('blur', function(){
+        if (this.value.length === 1) this.value = '0'+this.value+'00';
+        if (this.value.length === 2) this.value = this.value+':00';
+        if (this.value.length === 4 && !this.value.includes(':')) {
+            let d = this.value.replace(/\D/g,'');
+            this.value = d.slice(0,2)+':'+d.slice(2);
+        }
+        validate(this); render();
+    });
+});
+
+document.getElementById('fDate').addEventListener('input', render);
+document.getElementById('fDate').addEventListener('change', render);
+document.getElementById('fRmTask').addEventListener('input', render);
+
+// Toggle RM section
+document.getElementById('toggleRmRow').addEventListener('click', function(e){
+    // Don't double-toggle if clicking directly on the label/input area
+    const cb = document.getElementById('incRm');
+    cb.checked = !cb.checked;
+    document.getElementById('rmWrap').classList.toggle('open', cb.checked);
+    render();
+});
+// Also handle direct checkbox clicks
+document.getElementById('incRm').addEventListener('change', function(){
+    document.getElementById('rmWrap').classList.toggle('open', this.checked);
+    render();
+});
+
+// ===== HELPERS =====
+function ds(d){ return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
+function ts(d){ return p(d.getHours())+':'+p(d.getMinutes()); }
+function p(n){ return String(n).padStart(2,'0'); }
+
+function fmtDate(s){
+    if(!s) return '__/__/____';
+    const[y,m,d]=s.split('-'); return d+'/'+m+'/'+y;
+}
+
+function validTime(v){
+    if(!v||v.length<4) return false;
+    const[h,m]=v.split(':').map(Number);
+    return !isNaN(h)&&!isNaN(m)&&h>=0&&h<=23&&m>=0&&m<=59;
+}
+
+function validate(el){
+    const v = el.value;
+    el.classList.remove('valid','invalid');
+    if(!v) return;
+    if(v.length>=4) el.classList.add(validTime(v)?'valid':'invalid');
+}
+
+function calcDur(s,e){
+    const[sh,sm]=s.split(':').map(Number);
+    const[eh,em]=e.split(':').map(Number);
+    let a=sh*60+sm, b=eh*60+em;
+    if(b<=a) b+=1440;
+    const diff=b-a, hr=Math.floor(diff/60), mn=diff%60;
+    return { hr, mn, total: diff };
+}
+
+function fmtDurPlain(dur){
+    let parts=[];
+    if(dur.hr > 0) parts.push(dur.hr+' ชั่วโมง');
+    if(dur.mn > 0) parts.push(dur.mn+' นาที');
+    if(dur.hr===0 && dur.mn===0) return '0 นาที';
+    return parts.join(' ');
+}
+
+function fmtDur(dur){
+    let parts=[];
+    if(dur.hr > 0) parts.push(dur.hr + ' <span class="dur-unit">ชั่วโมง</span>');
+    if(dur.mn > 0) parts.push(dur.mn + ' <span class="dur-unit">นาที</span>');
+    if(dur.hr===0 && dur.mn===0) return '0 <span class="dur-unit">นาที</span>';
+    return parts.join(' ');
+}
+
+// ===== RENDER =====
+function render(){
+    const date     = document.getElementById('fDate').value;
+    const finish   = document.getElementById('fFinish').value;
+    const incRm    = document.getElementById('incRm').checked;
+    const rmTask   = document.getElementById('fRmTask').value.trim();
+    const comeback = document.getElementById('fComeback').value;
+
+    // Time dots
+    document.getElementById('dotFinish').classList.toggle('on', validTime(finish));
+    document.getElementById('dotComeback').classList.toggle('on', validTime(comeback));
+
+    // Duration bar
+    const durBar = document.getElementById('durBar');
+    const durVal = document.getElementById('durVal');
+    let dur = null;
+    if(validTime(finish) && validTime(comeback)){
+        dur = calcDur(finish, comeback);
+        durVal.innerHTML = fmtDur(dur);
+        durBar.classList.add('show');
+    } else {
+        durBar.classList.remove('show');
+    }
+
+    // ===== Build message =====
+    let m = '';
+    m += '══════════════════════\n';
+    m += '📢 HRM MACHINE STATUS\n';
+    m += '══════════════════════\n';
+    m += '\n';
+    m += '🏁 Finish Rolling\n';
+    m += '📅 วันที่ : ' + fmtDate(date) + '\n';
+    if(validTime(finish)){
+        m += '🕒 เวลา : ' + finish + ' น.\n';
+    } else {
+        m += '🕒 เวลา : ______ น.\n';
+    }
+
+    if(incRm && rmTask){
+        m += '\n';
+        m += '🔧 งานของ RM ที่ต้องทำเมื่อหยุดเครื่องจักร\n';
+        m += '📋 ' + rmTask + '\n';
+    }
+
+    m += '\n';
+    m += '🚀 กลับมาเตรียมรีดเวลา\n';
+    if(validTime(comeback)){
+        m += '🕒 เวลา : ' + comeback + ' น.\n';
+    } else {
+        m += '🕒 เวลา : ______ น.\n';
+    }
+
+    if(dur){
+        m += '\n⏱️ หยุดรวม : ' + fmtDurPlain(dur);
+    }
+
+    document.getElementById('pvMsg').textContent = m;
+}
+
+// ===== COPY =====
+function copyMsg(){
+    const txt = document.getElementById('pvMsg').textContent;
+    if(navigator.clipboard){
+        navigator.clipboard.writeText(txt).then(done).catch(fallback);
+    } else { fallback(); }
+    function fallback(){
+        const ta=document.createElement('textarea');
+        ta.value=txt; ta.style.cssText='position:fixed;opacity:0';
+        document.body.appendChild(ta); ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta); done();
+    }
+}
+function done(){
+    const b=document.getElementById('btnCopy'),
+          i=document.getElementById('cIco'),
+          l=document.getElementById('cLbl');
+    b.classList.add('done'); i.textContent='✔️'; l.textContent='คัดลอกแล้ว';
+    toast('คัดลอกเรียบร้อย ไปวางใน Line ได้เลย');
+    setTimeout(()=>{ b.classList.remove('done'); i.textContent='📋'; l.textContent='คัดลอกข้อความ'; },2500);
+}
+function toast(t){
+    const el=document.getElementById('toast');
+    el.textContent=t; el.classList.add('show');
+    setTimeout(()=>el.classList.remove('show'),2200);
+}
+
+render();
+</script>
+</body>
+</html>

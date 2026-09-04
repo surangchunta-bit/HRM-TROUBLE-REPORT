@@ -927,6 +927,66 @@ html[data-uacj="backup"] .hero h1::before{ content:'📦 '; }
 /* ปุ่มลอย + ในโมดูล ไม่ให้ทับปุ่มลบของแถบเลือกตำแหน่ง */
 html[data-uacj="report"] .cst-clear{ margin-right:56px !important; }
 
+/* ===========================================================================
+   20. REPORT — ช่องกรอกเวลา Breakdown
+   ---------------------------------------------------------------------------
+   เดิมกว้าง 46px ต่อช่อง เล็กเกินไปบนมือถือ และ placeholder "00"
+   ทำให้ดูเหมือนมีค่าอยู่แล้ว จึงทำให้เต็มความกว้างและซ่อน placeholder
+   (ค่าเริ่มต้นของช่องว่างอยู่แล้ว ไม่ได้แก้ค่าหรือ logic ใด ๆ)
+   ========================================================================= */
+html[data-uacj="report"] .nr-time-pair{ gap:8px !important; }
+html[data-uacj="report"] .nr-time-pair input{
+  flex:1 1 0 !important;
+  width:auto !important; max-width:none !important; min-width:0 !important;
+  min-height:54px !important;
+  font-family:var(--u-font) !important;
+  font-size:21px !important; font-weight:600 !important; letter-spacing:2px !important;
+  text-align:center !important;
+  padding:12px 8px !important;
+  border:1.4px solid var(--u-ink) !important;
+  border-radius:14px !important;
+  background:var(--u-white) !important;
+}
+html[data-uacj="report"] .nr-time-pair input::placeholder{ color:transparent !important; }
+html[data-uacj="report"] .nr-time-pair input:focus{
+  transform:none !important;
+  box-shadow:0 0 0 4px var(--u-ring) !important;
+}
+html[data-uacj="report"] .nr-colon{
+  color:var(--u-ink) !important; font-size:22px !important; margin:0 !important;
+}
+html[data-uacj="report"] .nr-unit{ margin-left:8px !important; font-size:13px !important; }
+html[data-uacj="report"] .nr-group{ gap:9px !important; }
+html[data-uacj="report"] .nr-group label{ font-size:14px !important; color:var(--u-text) !important; }
+html[data-uacj="report"] .nr-grid{ gap:16px !important; }
+html[data-uacj="report"] .nr-result{
+  background:var(--u-cream) !important;
+  border:1.4px dashed var(--u-ink) !important;
+  border-radius:16px !important;
+  padding:14px !important;
+}
+html[data-uacj="report"] .nr-result .r-label{
+  color:var(--u-text-2) !important; font-size:12px !important;
+  text-transform:none !important; letter-spacing:.3px !important;
+}
+html[data-uacj="report"] .nr-result .r-value{
+  color:var(--u-ink) !important; font-size:18px !important; font-family:var(--u-font) !important;
+}
+/* ช่องเวลาในแท็บ Update สถานะ (มี max-width ติดมาแบบ inline) */
+html[data-uacj="report"] .inp-time{
+  max-width:none !important; width:100% !important;
+  font-size:20px !important; letter-spacing:2px !important;
+}
+html[data-uacj="report"] .inp-time::placeholder{ color:transparent !important; }
+
+/* กัน grid/flex ล้นขอบการ์ด (ต้อง min-width:0 ไม่งั้น flex ไม่ยอมหด) */
+html[data-uacj="report"] .nr-grid > *,
+html[data-uacj="report"] .nr-group,
+html[data-uacj="report"] .nr-result{ min-width:0 !important; }
+html[data-uacj="report"] .nr-time-pair{ width:100% !important; min-width:0 !important; }
+html[data-uacj="report"] .nr-unit{ flex:none !important; }
+html[data-uacj="report"] .nr-colon{ flex:none !important; }
+
 </style>
 <!-- ===== /UACJ THEME ===== -->
 </head>

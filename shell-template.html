@@ -234,6 +234,15 @@ button{font-family:inherit;color:inherit;border:0;background:none;cursor:pointer
 }
 .toast.on{opacity:1;transform:translate(-50%,0)}
 
+/* ---------- ซ่อนเมนูล่าง + ปุ่ม + ระหว่างพิมพ์ ---------- */
+.bottomnav{ transition:transform .26s cubic-bezier(.4,0,.2,1),opacity .2s ease; }
+.fab-zone{ transition:opacity .2s ease,transform .26s ease; }
+body.typing .bottomnav{
+  transform:translateY(calc(100% + 26px)) !important;
+  opacity:0; pointer-events:none;
+}
+body.typing .fab-zone{ opacity:0; transform:translateY(24px); pointer-events:none; }
+
 /* ---------- พื้นหลังเคลื่อนไหว ---------- */
 .bg-deco{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 #app{position:relative;z-index:1}
@@ -521,6 +530,12 @@ function bridgeBody(key){
     var K=${JSON.stringify(key)};
     window.UACJ={ log:function(t){parent.postMessage({uacj:'activity',mod:K,title:t},'*');},
                   home:function(){parent.postMessage({uacj:'home'},'*');} };
+    function isField(el){ return el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)
+      && el.type!=='checkbox' && el.type!=='radio' && el.type!=='button' && el.type!=='submit'; }
+    document.addEventListener('focusin', function(e){
+      if(isField(e.target)) parent.postMessage({uacj:'typing',on:true},'*'); }, true);
+    document.addEventListener('focusout', function(e){
+      if(isField(e.target)) parent.postMessage({uacj:'typing',on:false},'*'); }, true);
     document.addEventListener('submit',function(e){
       var f=e.target; window.UACJ.log((f.getAttribute('data-title')||f.name||document.title||'').trim());
     },true);
@@ -540,8 +555,15 @@ function prepare(html,m){
   return out;
 }
 
+let typingT;
+function setTyping(on){
+  clearTimeout(typingT);
+  if(on) document.body.classList.add('typing');
+  else typingT=setTimeout(()=>document.body.classList.remove('typing'),180); // กันกระพริบตอนย้ายช่อง
+}
 window.addEventListener('message',e=>{
   const d=e.data||{};
+  if(d.uacj==='typing'){ setTyping(!!d.on); return; }
   if(d.uacj==='activity') pushActivity(d.mod,d.title);
   else if(d.uacj==='home') go('home');
   else if(d.uacj==='error') logErr('module:'+d.mod,d.msg);

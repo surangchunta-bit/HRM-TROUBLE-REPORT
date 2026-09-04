@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="th" data-uacj="shell">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#005BAA">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="HRM Trouble Report">
+<meta name="mobile-web-app-capable" content="yes">
+<title>HRM Trouble Report</title>
+<link rel="icon" type="image/png" href="__ICON64__">
+<link rel="apple-touch-icon" href="__ICON180__">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   HRM TROUBLE REPORT — MAIN APP SHELL  (ธีม "STICKER")
+   ใช้ token ชุดเดียวกับ uacj-theme.css ที่ครอบ 4 โมดูล
+   ไม่มี business logic ของโมดูลอยู่ในนี้
+   ============================================================ */
+:root{
+  --primary:#2FB3A3; --primary-deep:#1F8A7D; --light:#E3F5F1;
+  --yellow:#FFDE5C;  --pink:#F79489;  --lilac:#A99BE8;  --cream:#FFF6DC;
+  --bg:#FBFBFC;      --white:#FFFFFF;
+  --ink:#2C2C34;     --text:#2C2C34;  --text-2:#767A85; --text-3:#A9ADB6;
+  --success:#2FB3A3; --warning:#F0B429; --danger:#F26D63;
+  --border-soft:#E6E8EC; --line:1.6px;
+
+  --c-report:#2FB3A3;  --c-report-t:#E3F5F1;
+  --c-stop:#F26D63;    --c-stop-t:#FCE7E3;
+  --c-qic:#F0B429;     --c-qic-t:#FFF3D6;
+  --c-backup:#8B7BE0;  --c-backup-t:#EFEBFB;
+
+  --r-card:20px; --r-btn:999px; --r-input:14px; --r-chip:999px;
+  --nav-h:66px; --safe-b:env(safe-area-inset-bottom,0px);
+  --font:'Kanit',system-ui,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%}
+body{font-family:var(--font);font-weight:400;background:var(--bg);color:var(--text);overscroll-behavior-y:none}
+button{font-family:inherit;color:inherit;border:0;background:none;cursor:pointer}
+:focus-visible{outline:3px solid var(--primary);outline-offset:2px;border-radius:8px}
+
+#app{max-width:480px;margin:0 auto;position:relative;min-height:100dvh;display:flex;flex-direction:column}
+.screen{display:none;flex:1;flex-direction:column;min-height:0}
+.screen.active{display:flex}
+.pad-nav{padding-bottom:calc(var(--nav-h) + var(--safe-b) + 18px)}
+
+/* ---------- ANIMATION ---------- */
+@keyframes rise{ from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:none} }
+@keyframes pop{ 0%{transform:scale(.92)} 60%{transform:scale(1.05)} 100%{transform:scale(1)} }
+@keyframes wave{ 0%,60%,100%{transform:rotate(0)} 20%{transform:rotate(16deg)} 40%{transform:rotate(-10deg)} }
+.wave{display:inline-block;transform-origin:70% 70%;animation:wave 2.6s ease 1s infinite}
+
+/* ---------- HEADER ---------- */
+.appbar{
+  position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:12px;
+  padding:calc(env(safe-area-inset-top,0px) + 12px) 16px 12px;
+  background:var(--bg);
+}
+.appbar .back{
+  width:42px;height:42px;flex:none;border-radius:999px;display:grid;place-items:center;
+  font-size:19px;background:var(--white);color:var(--ink);
+  border:var(--line) solid var(--ink);box-shadow:0 3px 0 var(--ink);
+  transition:transform .12s ease,box-shadow .12s ease;
+}
+.appbar .back:active{transform:translateY(3px);box-shadow:0 0 0 var(--ink)}
+.appbar-txt{min-width:0}
+.appbar-txt h1{margin:0;font-size:18px;font-weight:600;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.appbar-txt p{margin:2px 0 0;font-size:12.5px;font-weight:300;color:var(--text-2)}
+
+/* ---------- HOME ---------- */
+.hero{
+  background:var(--light);border:var(--line) solid var(--ink);
+  border-radius:var(--r-card);margin:16px 16px 0;padding:18px 20px;
+  display:flex;align-items:center;gap:13px;animation:rise .45s cubic-bezier(.22,1,.36,1) both;
+  position:relative;overflow:hidden;
+}
+.hero img{width:54px;height:54px;border-radius:15px;flex:none;border:var(--line) solid var(--ink);position:relative;z-index:2}
+.hero h2{margin:0;font-size:19px;font-weight:600;line-height:1.35;letter-spacing:-.3px}
+.hero > div,.hero .gear{position:relative;z-index:2}
+.hero h2 b{
+  font-weight:600;background:linear-gradient(var(--yellow),var(--yellow));
+  background-repeat:no-repeat;background-size:100% 9px;background-position:0 82%;
+}
+.hero p{margin:4px 0 0;font-size:12.5px;font-weight:300;color:var(--text-2)}
+.hero .gear{
+  margin-left:auto;width:40px;height:40px;flex:none;border-radius:999px;
+  display:grid;place-items:center;font-size:16px;background:var(--white);
+  border:var(--line) solid var(--ink);transition:transform .18s ease;
+}
+.hero .gear:active{transform:rotate(90deg)}
+.wrap{padding:16px;flex:1}
+
+.status{
+  background:var(--white);border:var(--line) solid var(--ink);border-radius:var(--r-card);
+  padding:14px 16px;margin-bottom:20px;animation:rise .45s cubic-bezier(.22,1,.36,1) .06s both;
+}
+.status-head{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:500;color:var(--ink);margin-bottom:12px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--success);border:1.4px solid var(--ink)}
+.dot.off{background:var(--text-3)}
+.status-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{text-align:center}
+.stat b{display:block;font-size:20px;font-weight:600;line-height:1.2}
+.stat span{font-size:11px;font-weight:300;color:var(--text-2)}
+
+.sec-title{font-size:14px;font-weight:500;margin:0 2px 12px;display:flex;justify-content:space-between;align-items:baseline}
+.sec-title span{font-size:12px;font-weight:300;color:var(--text-2);cursor:pointer}
+
+.menu{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+.mcard{
+  background:var(--act);border:var(--line) solid var(--ink);border-radius:var(--r-card);
+  box-shadow:0 4px 0 var(--ink);
+  padding:16px;text-align:left;display:flex;flex-direction:column;gap:8px;min-height:124px;
+  transition:transform .12s ease,box-shadow .12s ease;
+  animation:rise .45s cubic-bezier(.22,1,.36,1) both;
+}
+.mcard:nth-child(1){animation-delay:.10s} .mcard:nth-child(2){animation-delay:.16s}
+.mcard:nth-child(3){animation-delay:.22s} .mcard:nth-child(4){animation-delay:.28s}
+.mcard:active{transform:translateY(4px);box-shadow:0 0 0 var(--ink)}
+.mcard .ico{
+  width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-size:20px;
+  background:var(--white);border:1.4px solid var(--ink);
+}
+.mcard b{font-size:15.5px;font-weight:600;letter-spacing:.2px;line-height:1;color:var(--ink)}
+.mcard small{font-size:12px;font-weight:300;color:var(--text-2);line-height:1.4}
+
+.feed{background:var(--white);border:var(--line) solid var(--ink);border-radius:var(--r-card);overflow:hidden}
+.fitem{display:flex;align-items:center;gap:12px;padding:13px 16px;width:100%;text-align:left;transition:background .15s ease}
+.fitem:active{background:var(--light)}
+.fitem+.fitem{border-top:1.4px solid var(--border-soft)}
+.fitem .ico{width:36px;height:36px;border-radius:999px;display:grid;place-items:center;font-size:15px;flex:none;border:1.4px solid var(--ink)}
+.fitem .t{flex:1;min-width:0}
+.fitem .t b{display:block;font-size:13.5px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fitem .t span{font-size:11.5px;font-weight:300;color:var(--text-2)}
+.fitem time{font-size:12px;font-weight:400;color:var(--text-2);flex:none}
+.empty{padding:30px 20px;text-align:center;color:var(--text-2)}
+.empty p{margin:0;font-size:13px;font-weight:300;line-height:1.7}
+
+/* ---------- FAB ---------- */
+.fab-zone{
+  position:fixed;z-index:60;right:0;left:0;margin:0 auto;max-width:480px;
+  bottom:calc(var(--nav-h) + var(--safe-b) + 20px);
+  pointer-events:none;display:flex;flex-direction:column;align-items:flex-end;gap:10px;padding-right:16px;
+}
+.fab-menu{display:flex;flex-direction:column;align-items:flex-end;gap:9px}
+.fab-item{
+  pointer-events:auto;display:flex;align-items:center;gap:9px;background:var(--white);
+  border:var(--line) solid var(--ink);border-radius:999px;padding:8px 16px 8px 10px;
+  box-shadow:0 3px 0 var(--ink);font-size:14px;font-weight:500;
+  opacity:0;transform:translateY(10px) scale(.9);visibility:hidden;
+  transition:opacity .18s ease,transform .22s cubic-bezier(.22,1.4,.4,1);
+}
+.fab-open .fab-item{opacity:1;transform:none;visibility:visible}
+.fab-open .fab-item:nth-child(1){transition-delay:.14s}
+.fab-open .fab-item:nth-child(2){transition-delay:.10s}
+.fab-open .fab-item:nth-child(3){transition-delay:.06s}
+.fab-open .fab-item:nth-child(4){transition-delay:.02s}
+.fab-item .ico{width:26px;height:26px;border-radius:999px;display:grid;place-items:center;font-size:13px;border:1.4px solid var(--ink)}
+.fab{
+  pointer-events:auto;width:58px;height:58px;border-radius:50%;background:var(--primary);color:#fff;
+  font-size:30px;font-weight:300;line-height:1;display:grid;place-items:center;
+  border:var(--line) solid var(--ink);box-shadow:0 4px 0 var(--ink);
+  transition:transform .28s cubic-bezier(.22,1.4,.4,1),box-shadow .12s ease,background .18s ease;
+}
+.fab:active{box-shadow:0 0 0 var(--ink)}
+.fab-open .fab{transform:rotate(135deg);background:var(--yellow);color:var(--ink)}
+.scrim{position:fixed;inset:0;z-index:55;background:rgba(44,44,52,.42);opacity:0;visibility:hidden;transition:opacity .2s ease}
+.scrim.on{opacity:1;visibility:visible}
+
+/* ---------- BOTTOM NAV (แถบลอย) ---------- */
+.bottomnav{
+  position:fixed;bottom:calc(var(--safe-b) + 12px);left:16px;right:16px;margin:0 auto;max-width:448px;z-index:70;
+  height:var(--nav-h);
+  background:var(--white);border:var(--line) solid var(--ink);border-radius:999px;
+  box-shadow:0 4px 0 var(--ink);
+  display:grid;grid-template-columns:repeat(var(--nav-cols,5),1fr);
+  padding:0 6px;overflow:hidden;
+}
+.nav-b{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;color:var(--text-2);font-size:9.5px;font-weight:400}
+.nav-b .ico{
+  width:40px;height:28px;border-radius:999px;display:grid;place-items:center;font-size:16px;
+  transition:background .2s ease,transform .2s cubic-bezier(.22,1.4,.4,1);
+}
+.nav-b.on{color:var(--ink);font-weight:500}
+.nav-b.on .ico{background:var(--light);border:1.4px solid var(--ink);transform:translateY(-2px)}
+
+/* ---------- MODULE HOST ---------- */
+.mod-body{flex:1;position:relative;min-height:0;background:var(--bg)}
+.mod-body iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:none;background:var(--bg)}
+.mod-body iframe.on{display:block;animation:rise .3s ease both}
+
+.notice{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:30px 26px;text-align:center}
+.notice h3{margin:0;font-size:17px;font-weight:600}
+.notice p{margin:0;font-size:13px;font-weight:300;color:var(--text-2);line-height:1.75;max-width:320px}
+.btn{
+  background:var(--primary);color:#fff;border-radius:999px;padding:12px 26px;font-size:15px;font-weight:500;
+  min-height:48px;border:var(--line) solid var(--ink);box-shadow:0 3px 0 var(--ink);
+  transition:transform .12s ease,box-shadow .12s ease;
+}
+.btn:active{transform:translateY(3px);box-shadow:0 0 0 var(--ink)}
+
+/* ---------- SETTINGS ---------- */
+.set-group{background:var(--white);border:var(--line) solid var(--ink);border-radius:var(--r-card);overflow:hidden;margin-bottom:12px;animation:rise .4s ease both}
+.set-row{display:flex;align-items:center;gap:12px;padding:14px 16px;width:100%;text-align:left}
+.set-row+.set-row{border-top:1.4px solid var(--border-soft)}
+.set-row .ico{width:34px;height:34px;border-radius:999px;background:var(--light);border:1.4px solid var(--ink);display:grid;place-items:center;font-size:15px;flex:none}
+.set-row .t{flex:1;font-size:14px;font-weight:400}
+.set-row .v{font-size:12.5px;font-weight:300;color:var(--text-2)}
+.switch{width:48px;height:28px;border-radius:999px;background:var(--border-soft);border:1.4px solid var(--ink);position:relative;flex:none;transition:background .2s ease}
+.switch i{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;border:1.4px solid var(--ink);transition:transform .24s cubic-bezier(.22,1.4,.4,1)}
+.switch.on{background:var(--primary)}
+.switch.on i{transform:translateX(20px)}
+.about{display:flex;gap:14px;align-items:center;padding:18px 16px}
+.about img{width:56px;height:56px;border-radius:15px;flex:none;border:var(--line) solid var(--ink)}
+.about b{display:block;font-size:15px;font-weight:600}
+.about span{font-size:12.5px;font-weight:300;color:var(--text-2)}
+
+/* ---------- OFFLINE / TOAST ---------- */
+.offline{
+  position:fixed;top:0;left:0;right:0;margin:0 auto;max-width:480px;z-index:90;
+  background:var(--yellow);color:var(--ink);border-bottom:var(--line) solid var(--ink);
+  padding:calc(env(safe-area-inset-top,0px) + 9px) 16px 9px;
+  font-size:12.5px;font-weight:500;text-align:center;transform:translateY(-100%);transition:transform .28s ease;
+}
+.offline.on{transform:none}
+.toast{
+  position:fixed;left:50%;bottom:calc(var(--nav-h) + var(--safe-b) + 92px);transform:translate(-50%,12px);
+  z-index:95;background:var(--ink);color:#fff;padding:13px 24px;border-radius:999px;
+  font-size:14px;font-weight:500;opacity:0;pointer-events:none;
+  transition:opacity .22s ease,transform .22s cubic-bezier(.22,1.4,.4,1);max-width:84vw;text-align:center;
+}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* ---------- พื้นหลังเคลื่อนไหว ---------- */
+.bg-deco{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+#app{position:relative;z-index:1}
+.blob{position:absolute;border-radius:50%;opacity:.75}
+.b1{width:190px;height:190px;background:#DFF3EF;top:-46px;left:-56px;animation:drift1 22s ease-in-out infinite}
+.b2{width:130px;height:130px;background:#FDECE8;top:22%;right:-48px;animation:drift2 26s ease-in-out infinite}
+.b3{width:96px;height:96px;background:#FFF4D8;bottom:26%;left:-32px;animation:drift3 19s ease-in-out infinite}
+.b4{width:150px;height:150px;background:#EFEBFB;bottom:-52px;right:-40px;animation:drift1 30s ease-in-out infinite reverse}
+.b5{width:70px;height:70px;background:#E3F5F1;top:52%;right:16%;opacity:.42;animation:drift2 17s ease-in-out infinite reverse}
+.spark{position:absolute;color:#FFDE5C;font-size:15px;opacity:.65;animation:twinkle 4s ease-in-out infinite}
+.s1{top:16%;right:12%;animation-delay:.4s}
+.s2{top:62%;left:9%;animation-delay:1.6s;color:#A99BE8}
+.s3{bottom:14%;right:22%;animation-delay:2.7s;color:#F79489}
+@keyframes drift1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(26px,32px) scale(1.09)}}
+@keyframes drift2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-30px,22px) scale(.93)}}
+@keyframes drift3{0%,100%{transform:translate(0,0)}50%{transform:translate(20px,-26px)}}
+@keyframes twinkle{0%,100%{opacity:.2;transform:scale(.8) rotate(0)}50%{opacity:.8;transform:scale(1.25) rotate(90deg)}}
+
+/* ---------- ฟองลอยในการ์ดทักทาย ---------- */
+.hero::before,.hero::after{
+  content:'';position:absolute;border-radius:50%;z-index:0;pointer-events:none;
+}
+.hero::before{width:120px;height:120px;background:rgba(255,255,255,.55);right:-24px;top:-46px;animation:drift3 14s ease-in-out infinite}
+.hero::after{width:66px;height:66px;background:rgba(255,222,92,.35);right:52px;bottom:-30px;animation:drift2 11s ease-in-out infinite}
+
+/* ---------- ไอคอนบนหน้าแรกเด้งเบา ๆ ---------- */
+.hero img{animation:bob 3.4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-5px) rotate(1.5deg)}}
+
+/* ---------- เมนูล่าง: ไอคอนหน้าที่อยู่จะโตขึ้นและเด้งขึ้นมา ---------- */
+.bottomnav{overflow:visible}
+.nav-b{position:relative}
+.nav-b em{font-style:normal;transition:opacity .2s ease,transform .2s ease}
+.nav-b .ico{
+  transition:transform .3s cubic-bezier(.22,1.5,.4,1),background .22s ease,border-color .22s ease;
+  border:1.4px solid transparent;
+}
+.nav-b.on{color:var(--ink)}
+.nav-b.on .ico{
+  background:var(--nbt);
+  border-color:var(--ink);
+  transform:translateY(-13px) scale(1.42);
+  animation:navHop .5s cubic-bezier(.22,1.5,.4,1);
+}
+.nav-b.on em{font-weight:600;transform:translateY(-6px)}
+/* จุดสีประจำโมดูลใต้เมนูที่เลือก */
+.nav-b.on::after{
+  content:'';position:absolute;bottom:7px;left:50%;
+  width:5px;height:5px;border-radius:50%;background:var(--nb);
+  transform:translateX(-50%);animation:pop .4s ease both .1s;
+}
+.nav-b:active .ico{transform:scale(.88)}
+.nav-b.on:active .ico{transform:translateY(-13px) scale(1.28)}
+@keyframes navHop{
+  0%{transform:translateY(0) scale(1)}
+  45%{transform:translateY(-19px) scale(1.5)}
+  100%{transform:translateY(-13px) scale(1.42)}
+}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001s!important;transition-duration:.001s!important}}
+</style>
+</head>
+<body>
+
+<div class="offline" id="offlineBar">📡 ไม่มีอินเทอร์เน็ต — ระบบยังใช้งานและบันทึกในเครื่องได้</div>
+
+<div class="bg-deco" aria-hidden="true">
+  <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
+  <span class="blob b4"></span><span class="blob b5"></span>
+  <span class="spark s1">✦</span><span class="spark s2">✦</span><span class="spark s3">✦</span>
+</div>
+
+<div id="app">
+
+  <!-- ============ HOME ============ -->
+  <section class="screen active" id="s-home">
+    <div class="hero">
+      <img src="__ICON180__" alt="HRM Trouble Report">
+      <div>
+        <h2>สวัสดี <b>RM Team</b> <span class="wave">👋</span></h2>
+        <p>วันนี้มีอะไรให้ช่วยไหม?</p>
+      </div>
+      <button class="gear" id="gear" aria-label="ตั้งค่า">🎛️</button>
+    </div>
+
+    <div class="wrap pad-nav">
+      <div class="status">
+        <div class="status-head"><i class="dot" id="sysDot"></i><span id="sysTxt">ระบบพร้อมใช้งาน</span></div>
+        <div class="status-grid">
+          <div class="stat"><b id="n-report">—</b><span>Report</span></div>
+          <div class="stat"><b id="n-stop">—</b><span>Stop</span></div>
+          <div class="stat"><b id="n-qic">—</b><span>QIC</span></div>
+          <div class="stat"><b id="n-backup">—</b><span>Backup</span></div>
+        </div>
+      </div>
+
+      <div class="sec-title">เลือกระบบที่ต้องการ</div>
+      <div class="menu" id="menuGrid"></div>
+
+      <div class="sec-title">รายการล่าสุด <span id="feedClear" hidden>ล้างรายการ</span></div>
+      <div class="feed" id="feed"></div>
+      <div style="height:20px"></div>
+    </div>
+  </section>
+
+  <!-- ============ MODULE ============ -->
+  <section class="screen" id="s-module">
+    <header class="appbar">
+      <button class="back" id="modBack" aria-label="ย้อนกลับ">←</button>
+      <div class="appbar-txt"><h1 id="modTitle"></h1><p id="modSub"></p></div>
+    </header>
+    <div class="mod-body pad-nav" id="modBody"></div>
+  </section>
+
+  <!-- ============ SETTINGS ============ -->
+  <section class="screen" id="s-settings">
+    <header class="appbar">
+      <button class="back" id="setBack" aria-label="ย้อนกลับ">←</button>
+      <div class="appbar-txt"><h1>ตั้งค่า</h1><p>ปรับแอปให้เข้ากับการใช้งาน</p></div>
+    </header>
+    <div class="wrap pad-nav">
+      <div class="set-group">
+        <div class="about">
+          <img src="__ICON180__" alt="">
+          <div><b>HRM Trouble Report</b><span>UACJ (Thailand) — Hot Rolling Mill</span></div>
+        </div>
+      </div>
+      <div class="set-group">
+        <div class="set-row"><i class="ico">📳</i><span class="t">สั่นตอบสนองเมื่อกดปุ่ม</span>
+          <span class="switch" id="swSound" role="switch" tabindex="0"><i></i></span></div>
+      </div>
+      <div class="set-group">
+        <div class="set-row"><i class="ico">🎈</i><span class="t">เวอร์ชัน</span><span class="v">__VERSION__</span></div>
+        <button class="set-row" id="btnClearAct"><i class="ico">🫧</i><span class="t">ล้างรายการล่าสุด</span><span class="v">›</span></button>
+      </div>
+      <div style="height:20px"></div>
+    </div>
+  </section>
+
+  <div class="scrim" id="scrim"></div>
+  <div class="fab-zone" id="fabZone">
+    <div class="fab-menu" id="fabMenu"></div>
+    <button class="fab" id="fab" aria-label="เปิดเมนูลัด">+</button>
+  </div>
+
+  <nav class="bottomnav" id="bnav"></nav>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- โค้ดเดิมของแต่ละโมดูล ฝังไว้ตรงนี้โดย build-app.py (ไม่ถูกแก้แม้แต่บรรทัดเดียว) -->
+<script type="text/html" id="tpl-report">__MOD_REPORT__</script>
+<script type="text/html" id="tpl-stop">__MOD_STOP__</script>
+<script type="text/html" id="tpl-qic">__MOD_QIC__</script>
+<script type="text/html" id="tpl-backup">__MOD_BACKUP__</script>
+<!-- ธีมกลาง ใช้ร่วมกันทั้ง 4 โมดูล ฉีดตอน runtime -->
+<script type="text/css" id="uacj-theme-src">__THEME__</script>
+
+<script>
+"use strict";
+
+const MODULES = {
+  report:{ key:'report', title:'REPORT', sub:'Trouble Report',       desc:'แจ้งปัญหาเครื่องจักร', icon:'✏️', ac:'--c-report', act:'--c-report-t', tpl:'tpl-report' },
+  stop:  { key:'stop',   title:'STOP',   sub:'Machine Stop',         desc:'แจ้ง Machine Stop',    icon:'🚦', ac:'--c-stop',   act:'--c-stop-t',   tpl:'tpl-stop' },
+  qic:   { key:'qic',    title:'QIC',    sub:'Quality Information',  desc:'แจ้งข้อมูล QIC',       icon:'🌟', ac:'--c-qic',    act:'--c-qic-t',    tpl:'tpl-qic' },
+  backup:{ key:'backup', title:'BACKUP', sub:'Backup System',        desc:'แจ้ง Backup งาน',      icon:'📦', ac:'--c-backup', act:'--c-backup-t', tpl:'tpl-backup' }
+};
+const ORDER=['report','stop','qic','backup'];
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+
+const KEY_ACT='uacj.activity', KEY_SET='uacj.settings';
+const store={
+  read(k,f){ try{ return JSON.parse(localStorage.getItem(k)) ?? f }catch(e){ return f } },
+  write(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)) }catch(e){ logErr('storage',e) } }
+};
+let settings=Object.assign({sound:true},store.read(KEY_SET,{}));
+
+const errors=[];
+function logErr(w,e){ errors.push({w,m:String(e&&e.message||e),t:Date.now()}); console.warn('[UACJ]',w,e); }
+window.addEventListener('error',e=>logErr('window',e.error||e.message));
+window.addEventListener('unhandledrejection',e=>logErr('promise',e.reason));
+
+function toast(m){ const t=$('#toast'); t.textContent=m; t.classList.add('on');
+  clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('on'),2200); }
+function buzz(){ if(settings.sound&&navigator.vibrate) try{navigator.vibrate(8)}catch(e){} }
+function esc(s){ return String(s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c])); }
+
+/* ---------- HOME ---------- */
+function buildMenu(){
+  $('#menuGrid').innerHTML = ORDER.map(k=>{ const m=MODULES[k];
+    return `<button class="mcard" data-open="${k}" style="--ac:var(${m.ac});--act:var(${m.act})">
+      <i class="ico">${m.icon}</i><b>${m.title}</b><small>${m.desc}</small></button>`; }).join('');
+}
+function buildNav(){
+  const items=[{k:'home',icon:'🏡',label:'หน้าหลัก',ac:'--primary',act:'--light'}]
+    .concat(ORDER.map(k=>({k,icon:MODULES[k].icon,label:MODULES[k].title,ac:MODULES[k].ac,act:MODULES[k].act})));
+  const nav=$('#bnav');
+  nav.style.setProperty('--nav-cols', items.length);           // ปรับช่องอัตโนมัติตามจำนวนโมดูล
+  if(items.length>5) nav.style.fontSize='9px';
+  nav.innerHTML=items.map(i=>
+    `<button class="nav-b" data-nav="${i.k}" style="--nb:var(${i.ac});--nbt:var(${i.act})">
+       <i class="ico">${i.icon}</i><em>${i.label}</em></button>`).join('');
+}
+function buildFab(){
+  $('#fabMenu').innerHTML=ORDER.slice().reverse().map(k=>{ const m=MODULES[k];
+    return `<button class="fab-item" data-open="${k}">
+      <i class="ico" style="background:var(${m.act});color:var(${m.ac})">${m.icon}</i>${m.title}</button>`; }).join('');
+}
+function todayKey(){ return new Date().toISOString().slice(0,10); }
+function fmtTime(ts){ const d=new Date(ts); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+function renderHome(){
+  const acts=store.read(KEY_ACT,[]), feed=$('#feed');
+  if(!acts.length){
+    feed.innerHTML='<div class="empty"><p>ยังไม่มีรายการในเครื่องนี้<br>เลือกระบบด้านบนเพื่อเริ่มงานแรก</p></div>';
+    $('#feedClear').hidden=true;
+  }else{
+    feed.innerHTML=acts.slice(0,5).map(a=>{ const m=MODULES[a.mod]||{icon:'•',ac:'--primary',act:'--light',title:a.mod};
+      return `<button class="fitem" data-open="${a.mod}">
+        <i class="ico" style="background:var(${m.act});color:var(${m.ac})">${m.icon}</i>
+        <span class="t"><b>${esc(a.title)}</b><span>${m.title}</span></span>
+        <time>${fmtTime(a.t)}</time></button>`; }).join('');
+    $('#feedClear').hidden=false;
+  }
+  const day=todayKey();
+  ORDER.forEach(k=>{ const n=acts.filter(a=>a.mod===k&&a.d===day).length; $('#n-'+k).textContent=n||'—'; });
+}
+function pushActivity(mod,title){
+  if(!MODULES[mod]) return;
+  const a=store.read(KEY_ACT,[]);
+  a.unshift({mod,title:title||MODULES[mod].desc,t:Date.now(),d:todayKey()});
+  store.write(KEY_ACT,a.slice(0,60)); renderHome();
+}
+
+/* ---------- ROUTER ---------- */
+let current='home'; const stack=[]; const frames={};
+function show(id){ $$('.screen').forEach(s=>s.classList.remove('active')); $('#'+id).classList.add('active'); }
+function go(route,push=true){
+  if(push && current!==route) stack.push(current);
+  current=route; closeFab();
+  if(route==='home'){ show('s-home'); renderHome(); }
+  else if(route==='settings'){ show('s-settings'); }
+  else openModule(route);
+  syncNav(); $('#fabZone').style.display=(route==='settings')?'none':'';
+  window.scrollTo(0,0);
+}
+function back(){
+  const prev=stack.pop()||'home'; current=prev;
+  if(prev==='home'){ show('s-home'); renderHome(); }
+  else if(prev==='settings') show('s-settings');
+  else openModule(prev);
+  syncNav(); $('#fabZone').style.display=(current==='settings')?'none':'';
+}
+function syncNav(){ $$('.nav-b').forEach(b=>b.classList.toggle('on',b.dataset.nav===current)); }
+
+/* ---------- MODULE LOADER ----------
+   ใช้ iframe เพื่อแยก CSS/JS ของแต่ละโมดูลออกจากกันสมบูรณ์
+   โค้ดเดิมไม่ถูกแก้ — ธีมกับ bridge ถูกฉีดตอน runtime เท่านั้น
+------------------------------------- */
+function openModule(key){
+  const m=MODULES[key]; if(!m) return go('home');
+  show('s-module');
+  $('#modTitle').textContent=m.title; $('#modSub').textContent=m.sub;
+  const body=$('#modBody');
+  [...body.children].forEach(c=>c.classList.remove('on'));
+  body.querySelectorAll('.notice').forEach(n=>n.remove());
+  if(frames[key]){ frames[key].classList.add('on'); return; }
+
+  const tpl=document.getElementById(m.tpl);
+  const raw=tpl ? tpl.textContent.replace(/<\\\/script/g,'<\/script') : '';
+  if(!raw.trim()){
+    const n=document.createElement('div'); n.className='notice';
+    n.innerHTML=`<h3>ยังไม่ได้ฝังโมดูล ${esc(m.title)}</h3>
+      <p>รัน build-app.py อีกครั้งเพื่อฝังโค้ดเดิมของโมดูลนี้เข้าไป</p>`;
+    body.appendChild(n); return;
+  }
+  const f=document.createElement('iframe');
+  f.className='on'; f.setAttribute('title',m.title);
+  f.srcdoc=prepare(raw,m);
+  body.appendChild(f); frames[key]=f;
+}
+
+function themeCss(){ const el=document.getElementById('uacj-theme-src'); return el?el.textContent:''; }
+
+function bridgeBody(key){
+  return `(function(){try{
+    var K=${JSON.stringify(key)};
+    window.UACJ={ log:function(t){parent.postMessage({uacj:'activity',mod:K,title:t},'*');},
+                  home:function(){parent.postMessage({uacj:'home'},'*');} };
+    document.addEventListener('submit',function(e){
+      var f=e.target; window.UACJ.log((f.getAttribute('data-title')||f.name||document.title||'').trim());
+    },true);
+    window.addEventListener('error',function(ev){parent.postMessage({uacj:'error',mod:K,msg:String(ev.message)},'*');});
+  }catch(err){}})();`;
+}
+
+/* ฉีด: data-uacj + ฟอนต์ Kanit + ธีมกลาง + bridge — ไม่แตะ markup เดิม */
+function prepare(html,m){
+  const head='<link rel="preconnect" href="https://fonts.googleapis.com">'
+    +'<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">'
+    +'<style id="uacj-theme">'+themeCss()+'</style>';
+  const foot='<scr'+'ipt>'+bridgeBody(m.key)+'</scr'+'ipt>';
+  let out=html.replace(/<html[^>]*>/i,t=>t.replace(/\s+data-uacj="[^"]*"/,'').slice(0,-1)+' data-uacj="'+m.key+'">');
+  out = /<\/head>/i.test(out) ? out.replace(/<\/head>/i,head+'</head>') : head+out;
+  out = /<\/body>/i.test(out) ? out.replace(/<\/body>/i,foot+'</body>') : out+foot;
+  return out;
+}
+
+window.addEventListener('message',e=>{
+  const d=e.data||{};
+  if(d.uacj==='activity') pushActivity(d.mod,d.title);
+  else if(d.uacj==='home') go('home');
+  else if(d.uacj==='error') logErr('module:'+d.mod,d.msg);
+});
+
+/* ---------- EVENTS ---------- */
+document.addEventListener('click',e=>{
+  const open=e.target.closest('[data-open]'); if(open){ buzz(); go(open.dataset.open); return; }
+  const nav=e.target.closest('[data-nav]');   if(nav){ buzz(); go(nav.dataset.nav); return; }
+  if(e.target.closest('#gear')){ buzz(); go('settings'); return; }
+  if(e.target.closest('#fab')){ toggleFab(); return; }
+  if(e.target.closest('#scrim')){ closeFab(); return; }
+  if(e.target.closest('#modBack')||e.target.closest('#setBack')){ buzz(); back(); return; }
+  if(e.target.closest('#feedClear')||e.target.closest('#btnClearAct')){
+    store.write(KEY_ACT,[]); renderHome(); toast('ล้างรายการแล้ว'); return; }
+});
+function toggleFab(){ buzz(); const z=$('#fabZone'); z.classList.toggle('fab-open');
+  $('#scrim').classList.toggle('on',z.classList.contains('fab-open')); }
+function closeFab(){ $('#fabZone').classList.remove('fab-open'); $('#scrim').classList.remove('on'); }
+
+function bindSwitch(el,key){
+  const sync=()=>{ el.classList.toggle('on',!!settings[key]); el.setAttribute('aria-checked',!!settings[key]); };
+  const flip=()=>{ settings[key]=!settings[key]; store.write(KEY_SET,settings); sync(); buzz(); };
+  el.addEventListener('click',flip);
+  el.addEventListener('keydown',ev=>{ if(ev.key===' '||ev.key==='Enter'){ ev.preventDefault(); flip(); } });
+  sync();
+}
+function netCheck(){
+  const off=!navigator.onLine;
+  $('#offlineBar').classList.toggle('on',off);
+  $('#sysDot').classList.toggle('off',off);
+  $('#sysTxt').textContent=off?'ไม่มีอินเทอร์เน็ต — บันทึกในเครื่อง':'ระบบพร้อมใช้งาน';
+  $('#sysTxt').style.color=off?'var(--text-2)':'var(--success)';
+}
+window.addEventListener('online',netCheck); window.addEventListener('offline',netCheck);
+
+history.pushState({app:1},'');
+window.addEventListener('popstate',()=>{ history.pushState({app:1},'');
+  if($('#fabZone').classList.contains('fab-open')) closeFab();
+  else if(current!=='home') back(); });
+
+buildMenu(); buildNav(); buildFab(); renderHome(); netCheck();
+bindSwitch($('#swSound'),'sound'); syncNav();
+</script>
+</body>
+</html>

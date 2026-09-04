@@ -416,7 +416,6 @@ html[data-uacj="stop"] body::after{ display:none !important; content:none !impor
   box-shadow:none !important;
 }
 .card{
-  padding:var(--u-s5) !important;
   margin-bottom:var(--u-s4) !important;
   animation:uacjRise .42s cubic-bezier(.22,1,.36,1) both !important;
 }
@@ -753,8 +752,8 @@ tbody tr:hover td{ background:var(--u-light) !important; }
    15. LAYOUT
    ------------------------------------------------------------------------ */
 .app, .main{
-  max-width:480px !important; margin:0 auto !important;
-  padding:var(--u-s4) var(--u-s4) var(--u-s7) !important;
+  max-width:520px !important; margin:0 auto !important;
+  padding:14px 12px 40px !important;      /* บีบขอบนอก เพื่อให้การ์ดข้างในกว้างขึ้น */
 }
 .foot, .h-footer{ color:var(--u-text-3) !important; font-size:12px !important; animation:none !important; }
 .tab-panel.active, .sec.active, .panel{ animation:none !important; }
@@ -762,6 +761,171 @@ tbody tr:hover td{ background:var(--u-light) !important; }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{ animation-duration:.001s !important; transition-duration:.001s !important; }
 }
+
+
+/* ===========================================================================
+   16. PADDING ของการ์ด — แยกตามโครงเดิมของแต่ละโมดูล
+   ---------------------------------------------------------------------------
+   report กับ qic ใส่ padding ไว้ที่ .card-body/.card-head อยู่แล้ว
+   ถ้าไปใส่ที่ .card อีกชั้นจะกลายเป็น padding ซ้อนกัน ทำให้เนื้อหาถูกบีบ
+   ========================================================================= */
+html[data-uacj="stop"]   .card{ padding:20px 18px !important; }
+html[data-uacj="backup"] .card{ padding:22px 20px !important; }
+
+html[data-uacj="report"] .card{ padding:0 !important; }
+html[data-uacj="report"] .card-head{ padding:18px 20px 0 !important; gap:10px !important; }
+html[data-uacj="report"] .card-body{ padding:16px 20px 22px !important; }
+
+html[data-uacj="qic"] .card{ padding:0 !important; }
+html[data-uacj="qic"] .card-header{ padding:18px 20px !important; }
+/* เว้น padding บน-ล่างไว้ให้โมดูลจัดการเอง ไม่งั้นตอนพับการ์ดจะเหลือช่องว่างค้าง */
+html[data-uacj="qic"] .card-body{ padding-left:20px !important; padding-right:20px !important; }
+
+/* ===========================================================================
+   17. REPORT — ป๊อปอัปเลือกค่า ย้ายมากลางจอ
+   ---------------------------------------------------------------------------
+   เดิมเป็น bottom sheet ติดขอบล่าง พอรันในแอปรวมจะโดนแถบเมนูล่างทับ
+   จนกดตัวเลือกล่างสุดไม่ได้ จึงเปลี่ยนเป็นกล่องกลางจอ
+   ========================================================================= */
+@keyframes uacjSheetIn{
+  from{ opacity:0; transform:translate(-50%,-46%) scale(.94); }
+  to  { opacity:1; transform:translate(-50%,-50%) scale(1); }
+}
+@keyframes uacjSheetOut{
+  from{ opacity:1; transform:translate(-50%,-50%) scale(1); }
+  to  { opacity:0; transform:translate(-50%,-48%) scale(.96); }
+}
+html[data-uacj="report"] .bs-sheet{
+  top:50% !important; bottom:auto !important; left:50% !important;
+  width:min(92vw,410px) !important;
+  max-height:76vh !important;
+  padding:24px 20px !important;
+  background:var(--u-white) !important;
+  border:var(--u-line) solid var(--u-ink) !important;
+  border-radius:24px !important;
+  box-shadow:0 5px 0 var(--u-ink) !important;
+  transform:translate(-50%,-50%) scale(.94) !important;
+}
+html[data-uacj="report"] .bs-sheet.bs-show{
+  animation:uacjSheetIn .26s cubic-bezier(.22,1,.36,1) forwards !important;
+}
+html[data-uacj="report"] .bs-sheet.bs-dismiss{
+  animation:uacjSheetOut .18s ease forwards !important;
+}
+html[data-uacj="report"] .bs-handle{ display:none !important; }
+html[data-uacj="report"] .bs-title{
+  font-size:15px !important; font-weight:600 !important;
+  color:var(--u-ink) !important;
+  text-transform:none !important; letter-spacing:0 !important;
+  margin-bottom:18px !important;
+}
+html[data-uacj="report"] .bs-options{ gap:10px !important; padding-bottom:0 !important; }
+html[data-uacj="report"] .bs-option{
+  min-height:54px !important;
+  padding:15px 18px !important;
+  font-size:15px !important;
+  border-radius:999px !important;
+  border:1.4px solid var(--u-ink) !important;
+  background:var(--u-white) !important;
+  color:var(--u-ink) !important;
+  box-shadow:none !important;
+}
+html[data-uacj="report"] .bs-option:hover{
+  background:var(--u-light) !important; transform:none !important; box-shadow:none !important;
+}
+html[data-uacj="report"] .bs-option.bs-selected{
+  background:var(--u-primary) !important; border-color:var(--u-ink) !important;
+  color:var(--u-white) !important; box-shadow:none !important;
+}
+
+/* ===========================================================================
+   18. REPORT — ช่องกรอกงานเสีย (Scrap / Cancel / QIC)
+   ---------------------------------------------------------------------------
+   เดิมเรียง Alloy / Lot / รายละเอียด ไว้ในบรรทัดเดียว บนมือถือจะแคบจนพิมพ์ไม่ได้
+   เปลี่ยนเป็นเรียงลงมาทีละช่อง และขยายความสูงให้นิ้วกดได้
+   ========================================================================= */
+html[data-uacj="report"] .nr-waste-row{
+  grid-template-columns:1fr !important;
+  gap:10px !important;
+  padding:14px !important;
+  border-radius:16px !important;
+  background:var(--u-white) !important;
+  border:1.4px solid var(--u-ink) !important;
+}
+html[data-uacj="report"] .nr-waste-rows{ gap:10px !important; }
+html[data-uacj="report"] .nr-waste-row .w-idx{
+  justify-self:start !important;
+  min-width:28px !important; height:28px !important;
+  background:var(--u-yellow) !important;
+  color:var(--u-ink) !important;
+  border:1.4px solid var(--u-ink) !important;
+  font-size:12px !important;
+}
+html[data-uacj="report"] .nr-waste-row input,
+html[data-uacj="report"] .status-item input{
+  width:100% !important;
+  min-height:46px !important;
+  font-size:15px !important;
+  font-family:var(--u-font) !important;
+  padding:11px 14px !important;
+  border-radius:12px !important;
+  border:1.4px solid var(--u-ink) !important;
+  background:var(--u-white) !important;
+}
+/* กล่อง QIC สร้างด้วย inline style จาก JS — ต้องใช้ !important ถึงจะทับได้ */
+html[data-uacj="report"] .status-item{
+  padding:14px !important;
+  border-radius:16px !important;
+  margin-bottom:10px !important;
+  background:var(--u-white) !important;
+  border:1.4px solid var(--u-ink) !important;
+}
+html[data-uacj="report"] .status-item > div[style*="grid"]{
+  grid-template-columns:1fr !important;
+  gap:12px !important;
+}
+html[data-uacj="report"] .status-item label{
+  font-size:12.5px !important; color:var(--u-text-2) !important; margin-bottom:2px !important;
+}
+/* ช่องนับจำนวนแผ่น */
+html[data-uacj="report"] .nr-waste-counter{
+  padding:8px 14px !important;
+  border:1.4px solid var(--u-ink) !important;
+  border-radius:999px !important;
+  background:var(--u-white) !important;
+  gap:10px !important;
+}
+html[data-uacj="report"] .nr-waste-counter input{
+  width:64px !important; min-height:34px !important;
+  font-family:var(--u-font) !important; font-size:17px !important; font-weight:600 !important;
+  border:0 !important; background:transparent !important; padding:2px 0 !important;
+}
+html[data-uacj="report"] .nr-waste-hd{ gap:12px !important; margin-bottom:14px !important; }
+html[data-uacj="report"] .w-tag{
+  border:1.4px solid var(--u-ink) !important; border-radius:999px !important;
+  font-size:12px !important; padding:3px 11px !important;
+}
+html[data-uacj="report"] .nr-divider{
+  background:var(--u-border-soft) !important; margin:22px 0 !important;
+}
+html[data-uacj="report"] .chip-grid{ gap:9px !important; }
+
+/* ===========================================================================
+   19. ไอคอนหัวเรื่องประจำโมดูล — สลับเป็นชุดเดียวกับหน้า Home
+   ---------------------------------------------------------------------------
+   ทำด้วย CSS ล้วน (ซ่อนอีโมจิเดิมด้วย font-size:0 แล้ววาดตัวใหม่ด้วย ::before)
+   ไฟล์ต้นฉบับจึงไม่ถูกแก้แม้แต่ตัวอักษรเดียว
+   ========================================================================= */
+html[data-uacj="stop"] .hdr-icon,
+html[data-uacj="qic"]  .header-badge{ font-size:0 !important; }
+html[data-uacj="stop"] .hdr-icon::before{ content:'🚦'; font-size:24px; line-height:1; }
+html[data-uacj="qic"]  .header-badge::before{ content:'🌟'; font-size:24px; line-height:1; }
+
+/* BACKUP ไม่มีไอคอนหัวเรื่องเดิม — เติมให้เข้าชุดกัน */
+html[data-uacj="backup"] .hero h1::before{ content:'📦 '; }
+
+/* ปุ่มลอย + ในโมดูล ไม่ให้ทับปุ่มลบของแถบเลือกตำแหน่ง */
+html[data-uacj="report"] .cst-clear{ margin-right:56px !important; }
 
 </style>
 <!-- ===== /UACJ THEME ===== -->

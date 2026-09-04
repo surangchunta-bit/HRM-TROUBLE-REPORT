@@ -1,0 +1,719 @@
+/* ============================================================================
+   UACJ THEME v2 "STICKER"  —  Shared visual layer
+   REPORT / STOP / QIC / BACKUP
+   ----------------------------------------------------------------------------
+   แนวทาง: เส้นขอบดำบาง + สีพาสเทล + ไฮไลต์เหลือง + ปุ่มทรงแคปซูล
+            ไม่มีเงาหนัก ไม่มี gradient ไม่มี glass
+
+   ชั้นแต่งหน้าอย่างเดียว ไม่มี logic ไม่แตะ markup ของโมดูล
+   แก้ไฟล์นี้ไฟล์เดียว → รัน  python3 apply-theme.py  → เปลี่ยนครบทั้ง 4 โมดูล
+   โมดูลถูกแยกด้วย  <html data-uacj="report|stop|qic|backup">
+
+   ธีมสีน้ำเงิน UACJ เดิมเก็บไว้ที่ uacj-theme-v1-blue.css
+   ========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   1. DESIGN TOKENS
+   ------------------------------------------------------------------------ */
+:root{
+  --u-primary:#2FB3A3;          /* เขียวมิ้นต์ — ปุ่มหลัก แท็บที่เลือก */
+  --u-primary-hover:#279487;
+  --u-primary-deep:#1F8A7D;
+  --u-secondary:#5AC8BC;
+  --u-light:#E3F5F1;            /* พื้นอ่อนของสีหลัก */
+
+  --u-yellow:#FFDE5C;           /* ไฮไลต์ เน้นคำสำคัญ */
+  --u-yellow-deep:#F0C000;
+  --u-pink:#F79489;
+  --u-pink-tint:#FCE7E3;
+  --u-lilac:#A99BE8;
+  --u-lilac-tint:#EFEBFB;
+  --u-cream:#FFF6DC;
+
+  --u-bg:#FBFBFC;
+  --u-white:#FFFFFF;
+  --u-ink:#2C2C34;              /* สีเส้นขอบและตัวอักษร */
+  --u-text:#2C2C34;
+  --u-text-2:#767A85;
+  --u-text-3:#A9ADB6;
+
+  --u-success:#2FB3A3;
+  --u-warning:#F0B429;
+  --u-danger:#F26D63;
+
+  --u-border:var(--u-ink);
+  --u-border-card:var(--u-ink);
+  --u-border-soft:#E6E8EC;
+  --u-line:1.6px;
+
+  --u-tint-primary:var(--u-light);
+  --u-ring:rgba(47,179,163,.28);
+  --u-tint-success:#E3F5F1;
+  --u-tint-warning:#FFF3D6;
+  --u-tint-danger:#FCE7E3;
+
+  --u-s1:4px; --u-s2:8px; --u-s3:12px; --u-s4:16px; --u-s5:20px; --u-s6:24px; --u-s7:32px;
+
+  --u-r-input:14px;
+  --u-r-btn:999px;              /* ปุ่มหลักเป็นแคปซูล */
+  --u-r-card:20px;
+  --u-r-chip:999px;
+  --u-h-control:48px;
+
+  --u-shadow:none;
+  --u-shadow-raise:0 4px 0 var(--u-ink);
+
+  --u-font:'Kanit','IBM Plex Sans Thai','Prompt',system-ui,sans-serif;
+
+  --u-accent:var(--u-primary);
+  --u-accent-tint:var(--u-light);
+}
+/* สีประจำโมดูล — ใช้กับหัวเรื่อง ไอคอน และป้ายชื่อโมดูล */
+html[data-uacj="report"]{ --u-accent:#2FB3A3; --u-accent-tint:#E3F5F1; }
+html[data-uacj="stop"]  { --u-accent:#F26D63; --u-accent-tint:#FCE7E3; }
+html[data-uacj="qic"]   { --u-accent:#F0B429; --u-accent-tint:#FFF3D6; }
+html[data-uacj="backup"]{ --u-accent:#8B7BE0; --u-accent-tint:#EFEBFB; }
+
+/* ---------------------------------------------------------------------------
+   2. REMAP ตัวแปรเดิมของแต่ละโมดูล → tokens ชุดใหม่
+   ------------------------------------------------------------------------ */
+html[data-uacj="report"]{
+  --bg:var(--u-bg); --surface:var(--u-white); --surface-solid:var(--u-white);
+  --raised:var(--u-light); --hover:var(--u-light);
+  --border:var(--u-ink); --border-l:var(--u-border-soft);
+  --text:var(--u-text); --text2:var(--u-text-2); --muted:var(--u-text-3);
+  --accent:var(--u-primary); --accent-s:var(--u-light); --accent-b:var(--u-ink);
+  --blue:var(--u-primary);   --blue-s:var(--u-light);   --blue-b:var(--u-ink);
+  --red:var(--u-danger);   --red-s:var(--u-tint-danger);   --red-b:var(--u-ink);
+  --amber:var(--u-warning);--amber-s:var(--u-tint-warning);--amber-b:var(--u-ink);
+  --green:var(--u-success);--green-s:var(--u-tint-success);--green-b:var(--u-ink);
+  --cyan:var(--u-lilac);   --cyan-s:var(--u-lilac-tint);   --cyan-b:var(--u-ink);
+  --r:var(--u-r-card); --rs:var(--u-r-input);
+  --font:var(--u-font); --mono:var(--u-font);
+  --shadow:none; --shadow-md:none;
+}
+html[data-uacj="stop"]{
+  --bg:var(--u-bg); --surface:var(--u-white);
+  --surface-alt:var(--u-white); --surface-highlight:var(--u-light);
+  --accent:var(--u-primary); --accent-hover:var(--u-primary-deep);
+  --accent-light:var(--u-light); --accent-glow:var(--u-ring);
+  --green:var(--u-success);  --green-light:var(--u-tint-success);
+  --cyan:var(--u-lilac);     --cyan-light:var(--u-lilac-tint);
+  --danger:var(--u-danger);  --danger-light:var(--u-tint-danger);
+  --text:var(--u-text); --text-2:var(--u-text-2); --text-3:var(--u-text-3);
+  --border:var(--u-ink); --border-light:var(--u-border-soft);
+  --shadow:transparent; --shadow-md:transparent;
+  --radius:var(--u-r-card); --radius-sm:var(--u-r-input);
+  --font-main:var(--u-font); --font-mono:var(--u-font);
+}
+html[data-uacj="qic"]{
+  --bg:var(--u-bg); --surface:var(--u-white); --surface-alt:var(--u-white);
+  --border:var(--u-ink); --border-light:var(--u-border-soft);
+  --accent:var(--u-primary); --accent-bg:var(--u-light);
+  --accent-hover:var(--u-primary-deep); --accent-ring:var(--u-ring);
+  --red:var(--u-danger);   --red-bg:var(--u-tint-danger);
+  --green:var(--u-success);--green-bg:var(--u-tint-success);
+  --blue:var(--u-lilac);   --blue-bg:var(--u-lilac-tint);
+  --text:var(--u-text); --text-sec:var(--u-text-2); --text-muted:var(--u-text-3);
+  --shadow-sm:none; --shadow:none;
+  --radius:var(--u-r-input); --radius-lg:var(--u-r-card);
+}
+html[data-uacj="backup"]{
+  --white:var(--u-white); --off:var(--u-white);
+  --gray:var(--u-border-soft); --gray-2:var(--u-ink);
+  --text:var(--u-text); --text-sec:var(--u-text-2); --text-muted:var(--u-text-3);
+  --blue:var(--u-primary); --cyan:var(--u-secondary); --violet:var(--u-accent);
+  --danger:var(--u-danger); --danger-bg:var(--u-tint-danger);
+  --cancel-accent:var(--u-accent); --cancel-bg:var(--u-lilac-tint);
+  --success:var(--u-success);
+  --shadow-sm:none; --shadow:none; --shadow-lg:none;
+  --radius:var(--u-r-card); --radius-md:16px; --radius-sm:var(--u-r-input);
+  --gradient:var(--u-primary);
+}
+
+/* ---------------------------------------------------------------------------
+   3. TYPOGRAPHY
+   ------------------------------------------------------------------------ */
+body, button, input, select, textarea, optgroup,
+h1, h2, h3, h4, h5, h6, p, label, small, strong, th, td{
+  font-family:var(--u-font) !important;
+}
+body{
+  background:var(--u-bg) !important;
+  color:var(--u-text) !important;
+  -webkit-font-smoothing:antialiased;
+}
+h1{ font-size:25px; font-weight:600; letter-spacing:-.2px; }
+h2{ font-size:20px; font-weight:600; }
+h3{ font-size:17px; font-weight:500; }
+label, .field label, .form-group label, .f-label, .eg label{
+  font-size:14px; font-weight:500; color:var(--u-text) !important;
+}
+small, .hint, .caption, .f-note, .card-sub, .card-title-sub{
+  font-size:12.5px; font-weight:300; color:var(--u-text-2) !important;
+}
+
+.card-title, .sub-label, .f-label, .sec-title{
+  color:var(--u-text) !important;
+  font-weight:500 !important;
+}
+/* ปากกาไฮไลต์เหลืองใต้หัวข้อส่วน — ลายเซ็นของธีมนี้ */
+.sec-label{
+  color:var(--u-ink) !important;
+  font-weight:500 !important;
+  letter-spacing:.4px !important;
+  font-size:13px !important;
+  background-image:linear-gradient(var(--u-yellow),var(--u-yellow)) !important;
+  background-repeat:no-repeat !important;
+  background-size:100% 7px !important;
+  background-position:0 86% !important;
+  width:fit-content !important;          /* ให้ไฮไลต์พอดีกับข้อความ ไม่ลากยาวทั้งแถว */
+}
+
+/* แถบสรุประยะเวลาใน STOP — เดิมเป็น gradient ทอง */
+.dur-bar{
+  background:var(--u-yellow) !important;
+  color:var(--u-ink) !important;
+  box-shadow:none !important;
+}
+.dur-bar .dur-label{ opacity:.75 !important; }
+
+/* ---------------------------------------------------------------------------
+   4. ตัดของตกแต่งที่ไม่ได้ทำหน้าที่ (orb / noise / glow / glass)
+   ------------------------------------------------------------------------ */
+.bg-anim, .ambient, .orb{ display:none !important; }
+html[data-uacj="stop"] body::before,
+html[data-uacj="stop"] body::after{ display:none !important; content:none !important; }
+.card::before, .type-btn::before, .hdr-icon::after, .sec-label::after,
+.btn-primary::before, .card-ico::after{ display:none !important; }
+*{ backdrop-filter:none !important; -webkit-backdrop-filter:none !important; }
+
+/* ---------------------------------------------------------------------------
+   5. CARD — ขาว ขอบดำบาง มุมมน ไม่มีเงา
+   ------------------------------------------------------------------------ */
+@keyframes uacjRise{
+  from{ opacity:0; transform:translateY(12px); }
+  to  { opacity:1; transform:none; }
+}
+@keyframes uacjPop{
+  0%{ transform:scale(.92); } 60%{ transform:scale(1.05); } 100%{ transform:scale(1); }
+}
+
+.card, .pv, .panel, .preview-card, .hist-card, .h-item, .entry,
+.qic-entry, .history-item, .modal-box, .bs-sheet, .sp-body{
+  background:var(--u-white) !important;
+  border:var(--u-line) solid var(--u-ink) !important;
+  border-radius:var(--u-r-card) !important;
+  box-shadow:none !important;
+}
+.card{
+  margin-bottom:var(--u-s4) !important;
+  animation:uacjRise .42s cubic-bezier(.22,1,.36,1) both !important;
+}
+.card:hover{ transform:none !important; }
+.entry, .qic-entry, .h-item, .history-item{ border-radius:16px !important; }
+/* การ์ดซ้อนในการ์ด ใช้พื้นพาสเทลแทน เพื่อไม่ให้ขอบดำซ้อนกันจนลายตา */
+.card .entry, .card .qic-entry, .card .sub-sec{
+  background:var(--u-accent-tint) !important;
+  border-color:var(--u-ink) !important;
+}
+
+/* ---------------------------------------------------------------------------
+   6. BUTTON — แคปซูล ขอบดำ มีเงาทึบ กดแล้วยุบลง
+   ------------------------------------------------------------------------ */
+button{ font-family:var(--u-font) !important; letter-spacing:0 !important; }
+.btn, .btn-primary, .btn-secondary, .btn-gen, .btn-sp,
+.modal-btn, .add-btn, .suggest-btn, .btn-add, .btn-load, .btn-clr, .h-clear{
+  font-family:var(--u-font) !important;
+  font-size:15px !important;
+  font-weight:500 !important;
+  border-radius:var(--u-r-btn) !important;
+  letter-spacing:0 !important;
+  transition:transform .12s ease, background .16s ease, box-shadow .12s ease !important;
+}
+.btn, .btn-primary, .btn-gen, .btn-sp, .modal-btn{
+  min-height:var(--u-h-control) !important;
+  background:var(--u-primary) !important;
+  color:var(--u-white) !important;
+  border:var(--u-line) solid var(--u-ink) !important;
+  box-shadow:0 3px 0 var(--u-ink) !important;
+  transform:none !important;
+}
+.btn:hover, .btn-primary:hover, .btn-gen:hover, .btn-sp:hover, .modal-btn:hover{
+  background:var(--u-primary-deep) !important;
+  transform:none !important;
+  box-shadow:0 3px 0 var(--u-ink) !important;
+}
+.btn:active, .btn-primary:active, .btn-gen:active, .btn-sp:active, .modal-btn:active{
+  transform:translateY(3px) !important;
+  box-shadow:0 0 0 var(--u-ink) !important;
+}
+.btn.done, .btn-primary.done{
+  background:var(--u-yellow) !important;
+  color:var(--u-ink) !important;
+  animation:uacjPop .3s ease !important;
+}
+.btn-secondary, .btn-add, .btn-load, .add-btn, .suggest-btn, .h-copy-btn{
+  background:var(--u-white) !important;
+  color:var(--u-ink) !important;
+  border:var(--u-line) dashed var(--u-ink) !important;
+  box-shadow:none !important;
+  min-height:42px !important;
+}
+.btn-secondary:hover, .btn-add:hover, .btn-load:hover, .add-btn:hover, .suggest-btn:hover{
+  background:var(--u-light) !important;
+  border-style:solid !important;
+  transform:none !important;
+}
+.btn.btn-ghost, .btn.btn-secondary, .btn.btn-load{
+  background:var(--u-white) !important;
+  color:var(--u-text-2) !important;
+  border:var(--u-line) dashed var(--u-ink) !important;
+  box-shadow:none !important;
+}
+.btn.btn-ghost:active{ transform:translateY(2px) !important; }
+.btn.btn-ghost:hover{
+  background:var(--u-tint-danger) !important;
+  color:var(--u-danger) !important;
+  border-style:solid !important;
+}
+.btn-sm{ min-height:42px !important; font-size:14px !important; }
+.btn-rm, .btn-del, .btn-del-h, .btn-clr, .h-clear, .h-del, .entry-x, .cst-clear{
+  color:var(--u-danger) !important;
+  background:var(--u-white) !important;
+  border:1.4px solid var(--u-ink) !important;
+  border-radius:999px !important;
+  box-shadow:none !important;
+}
+.btn-rm:hover, .btn-del:hover, .btn-del-h:hover, .btn-clr:hover, .h-clear:hover,
+.h-del:hover, .entry-x:hover{
+  background:var(--u-tint-danger) !important;
+  color:var(--u-danger) !important;
+}
+button:disabled, .btn:disabled{
+  background:var(--u-border-soft) !important;
+  border-color:var(--u-text-3) !important;
+  color:var(--u-text-3) !important;
+  box-shadow:none !important;
+  cursor:not-allowed !important;
+}
+
+/* ---------------------------------------------------------------------------
+   7. INPUT — ขาว ขอบดำบาง โฟกัสแล้วมีวงเขียว
+   ------------------------------------------------------------------------ */
+input[type="text"], input[type="date"], input[type="time"], input[type="number"],
+input[type="tel"], select, textarea,
+.inp-date, .inp-time, .inp-text, .inp-num, .inp-area, .f-input, .f-textarea{
+  font-family:var(--u-font) !important;
+  font-size:15px !important;
+  font-weight:400 !important;
+  letter-spacing:0 !important;
+  color:var(--u-text) !important;
+  background:var(--u-white) !important;
+  border:var(--u-line) solid var(--u-ink) !important;
+  border-radius:var(--u-r-input) !important;
+  box-shadow:none !important;
+  transition:box-shadow .16s ease !important;
+}
+input[type="text"], input[type="date"], input[type="time"], input[type="number"],
+input[type="tel"], select{
+  min-height:var(--u-h-control) !important;
+  padding:10px 15px !important;
+}
+textarea, .inp-area, .f-textarea{ padding:12px 15px !important; line-height:1.75 !important; }
+input:focus, select:focus, textarea:focus,
+.inp-date:focus, .inp-time:focus, .inp-text:focus, .inp-num:focus, .inp-area:focus,
+.f-input:focus, .f-textarea:focus{
+  border-color:var(--u-ink) !important;
+  box-shadow:0 0 0 4px var(--u-ring) !important;
+  background:var(--u-white) !important;
+  outline:none !important;
+}
+::placeholder{ color:var(--u-text-3) !important; font-weight:300 !important; }
+input.invalid{ border-color:var(--u-danger) !important; box-shadow:0 0 0 4px rgba(242,109,99,.22) !important; }
+input.valid  { box-shadow:0 0 0 4px var(--u-ring) !important; }
+.summary-num, .nr-result, .dur-val, .qi-text{ font-weight:600 !important; color:var(--u-ink) !important; }
+
+/* ---------------------------------------------------------------------------
+   8. CHIP / TOGGLE — แคปซูล เลือกแล้วเด้ง
+   ------------------------------------------------------------------------ */
+.chip, .nr-tag, .cascade-btn, .type-btn, .chip-pos, .bs-option{
+  font-family:var(--u-font) !important;
+  font-size:13px !important;
+  font-weight:400 !important;
+  border-radius:999px !important;
+  padding:7px 14px !important;
+  box-shadow:none !important;
+  transition:transform .14s ease, background .16s ease !important;
+}
+.chip, .chip-pos{
+  background:var(--u-white) !important;
+  color:var(--u-text-2) !important;
+  border:1.4px solid var(--u-ink) !important;
+}
+.chip:active, .nr-tag:active, .cascade-btn:active{ transform:scale(.95) !important; }
+.chip.active, .chip.chip-sel, .chip-pos.active, .bs-option.bs-selected,
+.cascade-btn.cascade-active{
+  background:var(--u-primary) !important;
+  border-color:var(--u-ink) !important;
+  color:var(--u-white) !important;
+  font-weight:500 !important;
+  box-shadow:none !important;
+  animation:uacjPop .28s ease !important;
+}
+.toggle-track, .toggle::after, .sw, .switch{ box-shadow:none !important; }
+.toggle-track, .switch, .sw{ border:1.4px solid var(--u-ink) !important; }
+.toggle-wrap input:checked + .toggle-track,
+.toggle input:checked + .toggle-track{ background:var(--u-primary) !important; }
+
+/* ---------------------------------------------------------------------------
+   9. HEADER — การ์ดพาสเทลขอบดำ สีตามโมดูล
+   ------------------------------------------------------------------------ */
+.header, .hdr, .hero{
+  opacity:1 !important;
+  background:var(--u-accent-tint) !important;
+  border:var(--u-line) solid var(--u-ink) !important;
+  border-radius:var(--u-r-card) !important;
+  box-shadow:none !important;
+  text-align:left !important;
+  padding:var(--u-s5) !important;
+  margin-bottom:var(--u-s4) !important;
+  animation:uacjRise .45s cubic-bezier(.22,1,.36,1) both !important;
+}
+.hero h1{ background:none !important; -webkit-text-fill-color:var(--u-ink) !important; }
+.header h1, .hdr h1, .hero h1{
+  font-size:22px !important; font-weight:600 !important;
+  color:var(--u-ink) !important; margin:0 !important; letter-spacing:-.2px !important;
+}
+.header p, .hdr p, .hero p{
+  font-size:13px !important; font-weight:300 !important;
+  color:var(--u-text-2) !important; margin:4px 0 0 !important;
+}
+.hdr-icon, .header-badge{
+  width:48px !important; height:48px !important; min-width:48px !important;
+  background:var(--u-white) !important;
+  border:var(--u-line) solid var(--u-ink) !important;
+  border-radius:16px !important;
+  font-size:22px !important;
+  box-shadow:0 3px 0 var(--u-ink) !important;
+  transform:none !important;
+  margin:0 0 var(--u-s3) !important;
+  display:inline-flex !important; align-items:center !important; justify-content:center !important;
+}
+.hdr-icon:hover{ transform:none !important; }
+.sticky-top{ background:var(--u-bg) !important; box-shadow:none !important; border:0 !important; }
+.hero-badge{
+  background:var(--u-white) !important;
+  border:1.4px solid var(--u-ink) !important;
+  color:var(--u-ink) !important;
+  font-size:12px !important; font-weight:500 !important;
+  border-radius:999px !important; padding:4px 12px !important;
+  margin-bottom:var(--u-s3) !important;
+}
+
+/* ---------------------------------------------------------------------------
+   10. TAB
+   ------------------------------------------------------------------------ */
+.tabs, .page-tabs, .tab-bar{
+  background:var(--u-white) !important;
+  border:var(--u-line) solid var(--u-ink) !important;
+  border-radius:999px !important;
+  padding:var(--u-s1) !important;
+  box-shadow:none !important;
+  gap:var(--u-s1) !important;
+  animation:none !important;
+}
+.tab, .tab-btn, .page-tab{
+  font-family:var(--u-font) !important;
+  font-size:13.5px !important;
+  font-weight:500 !important;
+  color:var(--u-text-2) !important;
+  background:transparent !important;
+  border:0 !important;
+  border-radius:999px !important;
+  min-height:38px !important;
+  padding:8px 12px !important;
+  box-shadow:none !important;
+  transition:background .18s ease, color .18s ease !important;
+}
+.tab.active, .tab-btn.active, .page-tab.active,
+.tab[data-tab="normal"].active{
+  background:var(--u-primary) !important;
+  color:var(--u-white) !important;
+  box-shadow:none !important;
+}
+.tab-btn:not(.active):hover, .page-tab:hover:not(.active), .tab:not(.active):hover{
+  background:var(--u-light) !important;
+  color:var(--u-ink) !important;
+}
+/* REPORT ใช้แถบแท็บแบบเลื่อนแนวนอน — คงโครงเดิม */
+html[data-uacj="report"] .tabs{
+  background:transparent !important; border:0 !important;
+  padding:0 var(--u-s1) var(--u-s3) !important;
+}
+html[data-uacj="report"] .tab{
+  background:var(--u-white) !important;
+  border:1.4px solid var(--u-ink) !important;
+  min-height:34px !important; padding:6px 14px !important; font-size:13px !important;
+}
+html[data-uacj="report"] .tab.active,
+html[data-uacj="report"] .tab[data-tab="normal"].active{
+  background:var(--u-primary) !important; color:var(--u-white) !important;
+}
+
+/* ---------------------------------------------------------------------------
+   11. STATUS / BADGE
+   ------------------------------------------------------------------------ */
+.badge-normal, .pv-tag, .preview-badge, .tab-badge, .badge-c, .hdr-badge,
+.entry-tag, .hero-dot, .sp-badge{
+  font-family:var(--u-font) !important;
+  font-size:12px !important; font-weight:500 !important;
+  border-radius:999px !important; letter-spacing:0 !important; box-shadow:none !important;
+}
+.pv-tag, .preview-badge, .sp-badge{
+  background:var(--u-yellow) !important;
+  color:var(--u-ink) !important;
+  border:1.4px solid var(--u-ink) !important;
+  padding:3px 11px !important;
+}
+.badge-c, .tab-badge, .hdr-badge{
+  background:var(--u-pink) !important; color:var(--u-white) !important;
+  border:1.4px solid var(--u-ink) !important;
+}
+.time-dot.on, .hero-dot{ background:var(--u-primary) !important; box-shadow:none !important; animation:none !important; }
+.qic-entry-head .h-title, .entry-top .entry-tag{ font-size:14px !important; }
+.step-num, .nr-step-num{
+  min-width:28px !important; height:28px !important; font-size:13px !important;
+  background:var(--u-yellow) !important;
+  color:var(--u-ink) !important;
+  border:1.4px solid var(--u-ink) !important;
+  border-radius:999px !important;
+  font-weight:600 !important; box-shadow:none !important;
+}
+
+/* ---------------------------------------------------------------------------
+   12. PREVIEW — กล่องข้อความที่จะ copy เข้า Line
+   ------------------------------------------------------------------------ */
+.pv-msg, .pv-text, .preview-box, .p-code, .h-pre, .hist-preview, .history-preview{
+  font-family:var(--u-font) !important;
+  font-size:14.5px !important; font-weight:400 !important;
+  line-height:1.9 !important;
+  color:var(--u-ink) !important;
+  background:var(--u-cream) !important;
+  border:1.4px dashed var(--u-ink) !important;
+  border-radius:16px !important;
+  white-space:pre-wrap !important;
+}
+.pv-head, .preview-header, .card-header, .card-head, .hist-hd, .h-row{
+  background:transparent !important;
+  border-bottom:1.4px solid var(--u-border-soft) !important;
+}
+
+/* ---------------------------------------------------------------------------
+   13. TABLE
+   ------------------------------------------------------------------------ */
+table{ width:100%; border-collapse:separate; border-spacing:0; font-size:14px;
+  border:var(--u-line) solid var(--u-ink); border-radius:16px; overflow:hidden; }
+th{
+  background:var(--u-light) !important; color:var(--u-ink) !important;
+  font-weight:500 !important; text-align:left;
+  padding:11px 14px !important; border-bottom:1.4px solid var(--u-ink) !important;
+}
+td{
+  background:var(--u-white) !important; padding:11px 14px !important;
+  border-bottom:1px solid var(--u-border-soft) !important;
+}
+tbody tr:hover td{ background:var(--u-light) !important; }
+
+/* ---------------------------------------------------------------------------
+   14. TOAST / MODAL
+   ------------------------------------------------------------------------ */
+.toast{
+  font-family:var(--u-font) !important;
+  font-size:14px !important; font-weight:500 !important;
+  background:var(--u-ink) !important; color:var(--u-white) !important;
+  border:0 !important; border-radius:999px !important;
+  box-shadow:0 4px 0 rgba(44,44,52,.25) !important;
+  padding:13px 24px !important;
+}
+.modal-overlay, .bs-overlay, .sp-bg{ background:rgba(44,44,52,.42) !important; }
+.modal-icon{ box-shadow:none !important; }
+
+/* ---------------------------------------------------------------------------
+   15. LAYOUT
+   ------------------------------------------------------------------------ */
+.app, .main{
+  max-width:520px !important; margin:0 auto !important;
+  padding:14px 12px 40px !important;      /* บีบขอบนอก เพื่อให้การ์ดข้างในกว้างขึ้น */
+}
+.foot, .h-footer{ color:var(--u-text-3) !important; font-size:12px !important; animation:none !important; }
+.tab-panel.active, .sec.active, .panel{ animation:none !important; }
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{ animation-duration:.001s !important; transition-duration:.001s !important; }
+}
+
+
+/* ===========================================================================
+   16. PADDING ของการ์ด — แยกตามโครงเดิมของแต่ละโมดูล
+   ---------------------------------------------------------------------------
+   report กับ qic ใส่ padding ไว้ที่ .card-body/.card-head อยู่แล้ว
+   ถ้าไปใส่ที่ .card อีกชั้นจะกลายเป็น padding ซ้อนกัน ทำให้เนื้อหาถูกบีบ
+   ========================================================================= */
+html[data-uacj="stop"]   .card{ padding:20px 18px !important; }
+html[data-uacj="backup"] .card{ padding:22px 20px !important; }
+
+html[data-uacj="report"] .card{ padding:0 !important; }
+html[data-uacj="report"] .card-head{ padding:18px 20px 0 !important; gap:10px !important; }
+html[data-uacj="report"] .card-body{ padding:16px 20px 22px !important; }
+
+html[data-uacj="qic"] .card{ padding:0 !important; }
+html[data-uacj="qic"] .card-header{ padding:18px 20px !important; }
+/* เว้น padding บน-ล่างไว้ให้โมดูลจัดการเอง ไม่งั้นตอนพับการ์ดจะเหลือช่องว่างค้าง */
+html[data-uacj="qic"] .card-body{ padding-left:20px !important; padding-right:20px !important; }
+
+/* ===========================================================================
+   17. REPORT — ป๊อปอัปเลือกค่า ย้ายมากลางจอ
+   ---------------------------------------------------------------------------
+   เดิมเป็น bottom sheet ติดขอบล่าง พอรันในแอปรวมจะโดนแถบเมนูล่างทับ
+   จนกดตัวเลือกล่างสุดไม่ได้ จึงเปลี่ยนเป็นกล่องกลางจอ
+   ========================================================================= */
+@keyframes uacjSheetIn{
+  from{ opacity:0; transform:translate(-50%,-46%) scale(.94); }
+  to  { opacity:1; transform:translate(-50%,-50%) scale(1); }
+}
+@keyframes uacjSheetOut{
+  from{ opacity:1; transform:translate(-50%,-50%) scale(1); }
+  to  { opacity:0; transform:translate(-50%,-48%) scale(.96); }
+}
+html[data-uacj="report"] .bs-sheet{
+  top:50% !important; bottom:auto !important; left:50% !important;
+  width:min(92vw,410px) !important;
+  max-height:76vh !important;
+  padding:24px 20px !important;
+  background:var(--u-white) !important;
+  border:var(--u-line) solid var(--u-ink) !important;
+  border-radius:24px !important;
+  box-shadow:0 5px 0 var(--u-ink) !important;
+  transform:translate(-50%,-50%) scale(.94) !important;
+}
+html[data-uacj="report"] .bs-sheet.bs-show{
+  animation:uacjSheetIn .26s cubic-bezier(.22,1,.36,1) forwards !important;
+}
+html[data-uacj="report"] .bs-sheet.bs-dismiss{
+  animation:uacjSheetOut .18s ease forwards !important;
+}
+html[data-uacj="report"] .bs-handle{ display:none !important; }
+html[data-uacj="report"] .bs-title{
+  font-size:15px !important; font-weight:600 !important;
+  color:var(--u-ink) !important;
+  text-transform:none !important; letter-spacing:0 !important;
+  margin-bottom:18px !important;
+}
+html[data-uacj="report"] .bs-options{ gap:10px !important; padding-bottom:0 !important; }
+html[data-uacj="report"] .bs-option{
+  min-height:54px !important;
+  padding:15px 18px !important;
+  font-size:15px !important;
+  border-radius:999px !important;
+  border:1.4px solid var(--u-ink) !important;
+  background:var(--u-white) !important;
+  color:var(--u-ink) !important;
+  box-shadow:none !important;
+}
+html[data-uacj="report"] .bs-option:hover{
+  background:var(--u-light) !important; transform:none !important; box-shadow:none !important;
+}
+html[data-uacj="report"] .bs-option.bs-selected{
+  background:var(--u-primary) !important; border-color:var(--u-ink) !important;
+  color:var(--u-white) !important; box-shadow:none !important;
+}
+
+/* ===========================================================================
+   18. REPORT — ช่องกรอกงานเสีย (Scrap / Cancel / QIC)
+   ---------------------------------------------------------------------------
+   เดิมเรียง Alloy / Lot / รายละเอียด ไว้ในบรรทัดเดียว บนมือถือจะแคบจนพิมพ์ไม่ได้
+   เปลี่ยนเป็นเรียงลงมาทีละช่อง และขยายความสูงให้นิ้วกดได้
+   ========================================================================= */
+html[data-uacj="report"] .nr-waste-row{
+  grid-template-columns:1fr !important;
+  gap:10px !important;
+  padding:14px !important;
+  border-radius:16px !important;
+  background:var(--u-white) !important;
+  border:1.4px solid var(--u-ink) !important;
+}
+html[data-uacj="report"] .nr-waste-rows{ gap:10px !important; }
+html[data-uacj="report"] .nr-waste-row .w-idx{
+  justify-self:start !important;
+  min-width:28px !important; height:28px !important;
+  background:var(--u-yellow) !important;
+  color:var(--u-ink) !important;
+  border:1.4px solid var(--u-ink) !important;
+  font-size:12px !important;
+}
+html[data-uacj="report"] .nr-waste-row input,
+html[data-uacj="report"] .status-item input{
+  width:100% !important;
+  min-height:46px !important;
+  font-size:15px !important;
+  font-family:var(--u-font) !important;
+  padding:11px 14px !important;
+  border-radius:12px !important;
+  border:1.4px solid var(--u-ink) !important;
+  background:var(--u-white) !important;
+}
+/* กล่อง QIC สร้างด้วย inline style จาก JS — ต้องใช้ !important ถึงจะทับได้ */
+html[data-uacj="report"] .status-item{
+  padding:14px !important;
+  border-radius:16px !important;
+  margin-bottom:10px !important;
+  background:var(--u-white) !important;
+  border:1.4px solid var(--u-ink) !important;
+}
+html[data-uacj="report"] .status-item > div[style*="grid"]{
+  grid-template-columns:1fr !important;
+  gap:12px !important;
+}
+html[data-uacj="report"] .status-item label{
+  font-size:12.5px !important; color:var(--u-text-2) !important; margin-bottom:2px !important;
+}
+/* ช่องนับจำนวนแผ่น */
+html[data-uacj="report"] .nr-waste-counter{
+  padding:8px 14px !important;
+  border:1.4px solid var(--u-ink) !important;
+  border-radius:999px !important;
+  background:var(--u-white) !important;
+  gap:10px !important;
+}
+html[data-uacj="report"] .nr-waste-counter input{
+  width:64px !important; min-height:34px !important;
+  font-family:var(--u-font) !important; font-size:17px !important; font-weight:600 !important;
+  border:0 !important; background:transparent !important; padding:2px 0 !important;
+}
+html[data-uacj="report"] .nr-waste-hd{ gap:12px !important; margin-bottom:14px !important; }
+html[data-uacj="report"] .w-tag{
+  border:1.4px solid var(--u-ink) !important; border-radius:999px !important;
+  font-size:12px !important; padding:3px 11px !important;
+}
+html[data-uacj="report"] .nr-divider{
+  background:var(--u-border-soft) !important; margin:22px 0 !important;
+}
+html[data-uacj="report"] .chip-grid{ gap:9px !important; }
+
+/* ===========================================================================
+   19. ไอคอนหัวเรื่องประจำโมดูล — สลับเป็นชุดเดียวกับหน้า Home
+   ---------------------------------------------------------------------------
+   ทำด้วย CSS ล้วน (ซ่อนอีโมจิเดิมด้วย font-size:0 แล้ววาดตัวใหม่ด้วย ::before)
+   ไฟล์ต้นฉบับจึงไม่ถูกแก้แม้แต่ตัวอักษรเดียว
+   ========================================================================= */
+html[data-uacj="stop"] .hdr-icon,
+html[data-uacj="qic"]  .header-badge{ font-size:0 !important; }
+html[data-uacj="stop"] .hdr-icon::before{ content:'🚦'; font-size:24px; line-height:1; }
+html[data-uacj="qic"]  .header-badge::before{ content:'🌟'; font-size:24px; line-height:1; }
+
+/* BACKUP ไม่มีไอคอนหัวเรื่องเดิม — เติมให้เข้าชุดกัน */
+html[data-uacj="backup"] .hero h1::before{ content:'📦 '; }
+
+/* ปุ่มลอย + ในโมดูล ไม่ให้ทับปุ่มลบของแถบเลือกตำแหน่ง */
+html[data-uacj="report"] .cst-clear{ margin-right:56px !important; }
